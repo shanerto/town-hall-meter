@@ -6,9 +6,17 @@ import { fileURLToPath } from 'url';
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const DATA_DIR = join(__dirname, 'data');
 
-mkdirSync(DATA_DIR, { recursive: true });
+// Vercel Functions are read-only except for /tmp. Note: /tmp is ephemeral and
+// not shared across function instances. For production on Vercel, replace this
+// with a persistent database such as Turso (libsql) or Vercel Postgres.
+const isVercel = !!process.env.VERCEL;
+const DB_PATH = isVercel ? '/tmp/townhall.db' : join(DATA_DIR, 'townhall.db');
 
-const db = new Database(join(DATA_DIR, 'townhall.db'));
+if (!isVercel) {
+  mkdirSync(DATA_DIR, { recursive: true });
+}
+
+const db = new Database(DB_PATH);
 
 db.pragma('journal_mode = WAL');
 db.pragma('foreign_keys = ON');

@@ -47,7 +47,12 @@ if (existsSync(distPath)) {
   });
 }
 
-app.listen(PORT, () => {
-  console.log(`Town Hall Meter server running on port ${PORT}`);
-  console.log(`Admin token: ${process.env.ADMIN_TOKEN || 'admin123 (default — set ADMIN_TOKEN env var)'}`);
-});
+// In Vercel the function host calls the exported app directly; do not bind a port.
+if (!process.env.VERCEL) {
+  app.listen(PORT, () => {
+    console.log(`Town Hall Meter server running on port ${PORT}`);
+    console.log(`Admin token: ${process.env.ADMIN_TOKEN || 'admin123 (default — set ADMIN_TOKEN env var)'}`);
+  });
+}
+
+export default app;

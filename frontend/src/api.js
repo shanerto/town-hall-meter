@@ -22,6 +22,15 @@ async function request(path, options = {}) {
     ...options,
   });
 
+  const contentType = res.headers.get('content-type') || '';
+  if (!contentType.includes('application/json')) {
+    // Server returned HTML instead of JSON — backend not reachable at BASE.
+    throw Object.assign(
+      new Error(`Backend not reachable (HTTP ${res.status}). Ensure the API is deployed and VITE_API_BASE_URL is set if the backend is on a different host.`),
+      { status: res.status }
+    );
+  }
+
   const data = await res.json();
   if (!res.ok) throw Object.assign(new Error(data.error || 'Request failed'), { status: res.status });
   return data;
