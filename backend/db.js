@@ -1,27 +1,30 @@
-import Database from 'better-sqlite3';
+import { createClient } from '@libsql/client';
 import { mkdirSync } from 'fs';
 import { join, dirname } from 'path';
 import { fileURLToPath } from 'url';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
-const DATA_DIR = join(__dirname, 'data');
 
-// Vercel Functions are read-only except for /tmp. Note: /tmp is ephemeral and
-// not shared across function instances. For production on Vercel, replace this
-// with a persistent database such as Turso (libsql) or Vercel Postgres.
-const isVercel = !!process.env.VERCEL;
-const DB_PATH = isVercel ? '/tmp/townhall.db' : join(DATA_DIR, 'townhall.db');
-
-if (!isVercel) {
+// --- Connection ---
+// Vercel production: set TURSO_DATABASE_URL + TURSO_AUTH_TOKEN
+//   (free tier at turso.tech — HTTP transport, zero native compilation needed)
+// Local dev: falls back to a local SQLite file via the native libsql binding
+let config;
+if (process.env.TURSO_DATABASE_URL) {
+  config = {
+    url: process.env.TURSO_DATABASE_URL,
+    authToken: process.env.TURSO_AUTH_TOKEN,
+  };
+} else {
+  const DATA_DIR = join(__dirname, 'data');
   mkdirSync(DATA_DIR, { recursive: true });
+  config = { url: `file:${join(DATA_DIR, 'townhall.db')}` };
 }
 
-const db = new Database(DB_PATH);
+const db = createClient(config);
 
-db.pragma('journal_mode = WAL');
-db.pragma('foreign_keys = ON');
-
-db.exec(`
+// --- Schema ---
+await db.executeMultiple(`
   CREATE TABLE IF NOT EXISTS town_halls (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     date TEXT NOT NULL UNIQUE,
@@ -42,14 +45,14 @@ db.exec(`
   );
 `);
 
-// Seed a current town hall if none exists
-const existing = db.prepare('SELECT id FROM town_halls LIMIT 1').get();
-if (!existing) {
+// --- Seed ---
+const existing = await db.execute('SELECT id FROM town_halls LIMIT 1');
+if (existing.rows.length === 0) {
   const today = new Date().toISOString().split('T')[0];
-  db.prepare('INSERT OR IGNORE INTO town_halls (date, title) VALUES (?, ?)').run(
-    today,
-    'Town Hall'
-  );
+  await db.execute({
+    sql: 'INSERT OR IGNORE INTO town_halls (date, title) VALUES (?, ?)',
+    args: [today, 'Town Hall'],
+  });
 }
 
 export default db;
