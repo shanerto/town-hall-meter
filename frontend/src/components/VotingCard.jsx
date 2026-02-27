@@ -24,6 +24,7 @@ function percentToRating(percent) {
 export function VotingCard({ townHall, onVote, previousRating = null }) {
   const [selected, setSelected] = useState(previousRating);
   const [submitting, setSubmitting] = useState(false);
+  const [logoError, setLogoError] = useState(false);
   const trackRef = useRef(null);
   const isUpdate = previousRating !== null;
 
@@ -80,7 +81,16 @@ export function VotingCard({ townHall, onVote, previousRating = null }) {
     <div className="page">
       <div className="card">
         <div className="app-header">
-          <div className="app-title">Town Hall Meter</div>
+          {logoError ? (
+            <span className="brand-logo-fallback">Town Hall Meter</span>
+          ) : (
+            <img
+              src="/logo.svg"
+              alt="Town Hall"
+              className="brand-logo"
+              onError={() => setLogoError(true)}
+            />
+          )}
           {townHall && <div className="app-date">{formatDate(townHall.date)}</div>}
         </div>
 
