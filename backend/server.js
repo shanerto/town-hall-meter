@@ -47,6 +47,12 @@ if (existsSync(distPath)) {
   });
 }
 
+// Global JSON error handler — must come after all routes
+app.use((err, req, res, _next) => {
+  console.error('[server error]', err.message);
+  res.status(err.status || 500).json({ error: err.message || 'Internal server error' });
+});
+
 // In Vercel the function host calls the exported app directly; do not bind a port.
 if (!process.env.VERCEL) {
   app.listen(PORT, () => {
