@@ -12,7 +12,25 @@ const __dirname = dirname(fileURLToPath(import.meta.url));
 const PORT = process.env.PORT || 3001;
 const app = express();
 
-app.use(cors({ origin: '*' }));
+// Allow same-origin requests and any explicitly listed frontend origins.
+// Set ALLOWED_ORIGINS to a comma-separated list, e.g.:
+//   ALLOWED_ORIGINS=https://town-hall-meter.vercel.app,https://mycompany.com
+const allowedOrigins = process.env.ALLOWED_ORIGINS
+  ? process.env.ALLOWED_ORIGINS.split(',').map((s) => s.trim())
+  : null;
+
+app.use(
+  cors({
+    origin: allowedOrigins
+      ? (origin, cb) => {
+          // allow server-to-server requests (no origin) and listed origins
+          if (!origin || allowedOrigins.includes(origin)) return cb(null, true);
+          cb(new Error(`CORS: origin ${origin} not allowed`));
+        }
+      : '*',
+    credentials: true,
+  })
+);
 app.use(express.json());
 
 // API routes

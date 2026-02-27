@@ -1,4 +1,7 @@
-const BASE = '/api';
+// In production with a separately-hosted backend, set VITE_API_BASE_URL
+// (e.g. https://your-backend.railway.app). Leave unset when the frontend
+// and backend are served from the same origin.
+const BASE = (import.meta.env.VITE_API_BASE_URL ?? '') + '/api';
 
 function getUserId() {
   let id = localStorage.getItem('thm_user_id');
