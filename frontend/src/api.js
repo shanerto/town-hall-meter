@@ -48,6 +48,12 @@ export const api = {
       body: JSON.stringify({ townHallId, rating }),
     }),
 
+  updateVote: (townHallId, rating) =>
+    request('/votes', {
+      method: 'PUT',
+      body: JSON.stringify({ townHallId, rating }),
+    }),
+
   getResults: (townHallId) =>
     request(`/townhalls/${townHallId}/results`),
 };

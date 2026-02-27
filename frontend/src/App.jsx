@@ -23,6 +23,7 @@ export default function App() {
   const [view, setView] = useState('loading'); // 'loading' | 'voting' | 'confirming' | 'results'
   const [townHall, setTownHall] = useState(null);
   const [lastRating, setLastRating] = useState(null);
+  const [previousRating, setPreviousRating] = useState(null);
   const [results, setResults] = useState(null);
   const [error, setError] = useState(null);
 
@@ -45,11 +46,10 @@ export default function App() {
         setTownHall(th);
 
         const status = await api.getVoteStatus(th.id);
-        if (status.hasVoted) {
-          await loadResults(th.id);
-        } else {
-          setView('voting');
+        if (status.hasVoted && status.vote) {
+          setPreviousRating(status.vote.rating);
         }
+        setView('voting');
       } catch (err) {
         setError(err.message || 'Could not connect to server.');
       }
@@ -62,13 +62,12 @@ export default function App() {
     setLastRating(rating);
     setView('confirming');
     try {
-      await api.submitVote(townHall.id, rating);
-    } catch (err) {
-      if (err.status === 409) {
-        // Already voted — go straight to results
-        await loadResults(townHall.id);
-        return;
+      if (previousRating !== null) {
+        await api.updateVote(townHall.id, rating);
+      } else {
+        await api.submitVote(townHall.id, rating);
       }
+    } catch (err) {
       setError(err.message);
     }
   }
@@ -128,7 +127,7 @@ export default function App() {
       </nav>
 
       {view === 'voting' && (
-        <VotingCard townHall={townHall} onVote={handleVote} />
+        <VotingCard townHall={townHall} onVote={handleVote} previousRating={previousRating} />
       )}
 
       {view === 'confirming' && (
