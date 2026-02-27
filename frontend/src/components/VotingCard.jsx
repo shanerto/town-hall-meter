@@ -85,7 +85,7 @@ export function VotingCard({ townHall, onVote, previousRating = null }) {
             <span className="brand-logo-fallback">Town Hall Meter</span>
           ) : (
             <img
-              src="/logo.svg"
+              src="/logo.png"
               alt="Town Hall"
               className="brand-logo"
               onError={() => setLogoError(true)}
