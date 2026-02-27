@@ -15,6 +15,10 @@ if (process.env.TURSO_DATABASE_URL) {
     url: process.env.TURSO_DATABASE_URL,
     authToken: process.env.TURSO_AUTH_TOKEN,
   };
+} else if (process.env.VERCEL) {
+  // /tmp is the only writable path in Vercel's serverless environment.
+  // Data resets on cold starts — set TURSO_DATABASE_URL for persistence.
+  config = { url: 'file:/tmp/townhall.db' };
 } else {
   const DATA_DIR = join(__dirname, 'data');
   mkdirSync(DATA_DIR, { recursive: true });
