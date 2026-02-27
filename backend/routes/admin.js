@@ -22,7 +22,7 @@ router.get('/townhalls', requireAdmin, async (req, res, next) => {
              AVG(CAST(v.rating AS REAL)) as average
       FROM town_halls th
       LEFT JOIN votes v ON v.town_hall_id = th.id
-      GROUP BY th.id
+      GROUP BY th.id, th.date, th.title, th.created_at
       ORDER BY th.date DESC
     `);
     res.json(result.rows.map((r) => ({
@@ -42,16 +42,12 @@ router.post('/townhalls', requireAdmin, async (req, res, next) => {
 
     try {
       const result = await db.execute({
-        sql: 'INSERT INTO town_halls (date, title) VALUES (?, ?)',
+        sql: 'INSERT INTO town_halls (date, title) VALUES (?, ?) RETURNING *',
         args: [date, title || null],
       });
-      const created = await db.execute({
-        sql: 'SELECT * FROM town_halls WHERE id = ?',
-        args: [Number(result.lastInsertRowid)],
-      });
-      res.status(201).json(created.rows[0]);
+      res.status(201).json(result.rows[0]);
     } catch (err) {
-      if (err.message?.includes('UNIQUE constraint')) {
+      if (err.code === '23505' || err.message?.includes('unique')) {
         return res.status(409).json({ error: 'A town hall with that date already exists' });
       }
       throw err;
@@ -126,7 +122,7 @@ router.get('/townhalls/:id/distribution', requireAdmin, async (req, res, next) =
     const distResult = await db.execute({
       sql: `SELECT rating, emoji, emoji_label, COUNT(*) as count
             FROM votes WHERE town_hall_id = ?
-            GROUP BY rating ORDER BY rating`,
+            GROUP BY rating, emoji, emoji_label ORDER BY rating`,
       args: [id],
     });
     const statsResult = await db.execute({

@@ -53,7 +53,7 @@ router.post('/', async (req, res, next) => {
       });
       res.status(201).json({ success: true, rating: ratingNum, emoji, emojiLabel });
     } catch (err) {
-      if (err.message?.includes('UNIQUE constraint')) {
+      if (err.code === '23505' || err.message?.includes('unique')) {
         return res.status(409).json({ error: 'You have already voted for this Town Hall' });
       }
       throw err;

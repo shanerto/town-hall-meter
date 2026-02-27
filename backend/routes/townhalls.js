@@ -51,7 +51,7 @@ router.get('/:id/results', async (req, res, next) => {
     const distResult = await db.execute({
       sql: `SELECT rating, emoji, emoji_label, COUNT(*) as count
             FROM votes WHERE town_hall_id = ?
-            GROUP BY rating ORDER BY rating`,
+            GROUP BY rating, emoji, emoji_label ORDER BY rating`,
       args: [id],
     });
 
