@@ -36,6 +36,13 @@ async function doInit() {
     )
   `;
 
+  // Idempotent migrations: add any columns that may be missing on pre-existing tables.
+  // ADD COLUMN IF NOT EXISTS is a no-op when the column already exists.
+  await sql`ALTER TABLE votes ADD COLUMN IF NOT EXISTS rating      INTEGER DEFAULT 3 CHECK (rating BETWEEN 1 AND 5)`;
+  await sql`ALTER TABLE votes ADD COLUMN IF NOT EXISTS emoji       TEXT DEFAULT ''`;
+  await sql`ALTER TABLE votes ADD COLUMN IF NOT EXISTS emoji_label TEXT DEFAULT ''`;
+  await sql`ALTER TABLE votes ADD COLUMN IF NOT EXISTS timestamp   TIMESTAMPTZ DEFAULT NOW()`;
+
   // Seed
   const seed = await sql`SELECT id FROM town_halls LIMIT 1`;
   if (seed.length === 0) {
