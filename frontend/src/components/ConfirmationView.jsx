@@ -30,10 +30,6 @@ export function ConfirmationView({ rating, townHallId, previousComment }) {
     }
   }
 
-  function handleSkip() {
-    setSaved(true);
-  }
-
   return (
     <>
       <Confetti active={isRocket} />
@@ -61,13 +57,6 @@ export function ConfirmationView({ rating, townHallId, previousComment }) {
                 disabled={saving}
               />
               <div className="comment-actions">
-                <button
-                  className="btn btn-skip"
-                  onClick={handleSkip}
-                  disabled={saving}
-                >
-                  Skip
-                </button>
                 <button
                   className="btn btn-primary"
                   onClick={handleSend}
