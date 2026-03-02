@@ -61,18 +61,18 @@ if (!process.env.VERCEL) {
     console.log(`Admin token: ${process.env.ADMIN_TOKEN || 'admin123 (default — set ADMIN_TOKEN env var)'}`);
   });
 
-  // Weekly Sunday reset — runs only in self-hosted (non-Vercel) environments.
+  // Tuesday 11:59 PM ET reset — runs only in self-hosted (non-Vercel) environments.
   // Vercel uses its own cron job (see vercel.json) to POST /api/admin/weekly-reset.
   const { default: cron } = await import('node-cron');
-  cron.schedule('0 0 * * 0', async () => {
-    console.log('[cron] Running weekly Sunday reset…');
+  cron.schedule('59 23 * * 2', async () => {
+    console.log('[cron] Running weekly Tuesday-night reset…');
     try {
       const nextTownHall = await performWeeklyReset();
       console.log(`[cron] Reset complete. Next town hall: ${nextTownHall}`);
     } catch (err) {
       console.error('[cron] Weekly reset failed:', err);
     }
-  });
+  }, { timezone: 'America/New_York' });
 }
 
 export default app;

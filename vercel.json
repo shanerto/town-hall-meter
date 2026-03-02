@@ -9,7 +9,7 @@
   "crons": [
     {
       "path": "/api/admin/weekly-reset",
-      "schedule": "0 0 * * 0"
+      "schedule": "59 4 * * 3"
     }
   ]
 }
