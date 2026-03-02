@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect } from 'react';
 import { adminApi } from '../api.js';
 
 function formatDate(dateStr) {
@@ -9,11 +9,6 @@ function formatDate(dateStr) {
 function formatDateTime(ts) {
   if (!ts) return '';
   return new Date(ts).toLocaleString('en-US', { month: 'short', day: 'numeric', hour: 'numeric', minute: '2-digit' });
-}
-
-function ScoreDots({ avg }) {
-  if (!avg) return <span style={{ color: '#9ca3af', fontSize: '0.75rem' }}>—</span>;
-  return <span className="score-badge">{avg.toFixed(1)}</span>;
 }
 
 function LoginForm({ onLogin }) {
@@ -57,70 +52,33 @@ function LoginForm({ onLogin }) {
   );
 }
 
+// ── Week list ──────────────────────────────────────────────────────────────────
 
-function TownHallRow({ row, token, onRefresh }) {
-  const [editing, setEditing] = useState(false);
-  const [date, setDate] = useState(row.date);
-  const [title, setTitle] = useState(row.title || '');
-  const [saving, setSaving] = useState(false);
-
-  async function handleSave() {
-    setSaving(true);
-    try {
-      await adminApi.updateTownHall(token, row.id, { date, title: title || null });
-      setEditing(false);
-      onRefresh();
-    } finally {
-      setSaving(false);
-    }
-  }
-
-  async function handleDelete() {
-    if (!window.confirm(`Delete Town Hall on ${row.date}? This will remove all votes.`)) return;
-    await adminApi.deleteTownHall(token, row.id);
-    onRefresh();
-  }
-
-  if (editing) {
-    return (
-      <tr>
-        <td>
-          <input type="date" className="form-input" value={date} onChange={(e) => setDate(e.target.value)} />
-        </td>
-        <td>
-          <input type="text" className="form-input" value={title} onChange={(e) => setTitle(e.target.value)} placeholder="Title" />
-        </td>
-        <td><ScoreDots avg={row.average} /></td>
-        <td>{row.total_responses}</td>
-        <td>
-          <div style={{ display: 'flex', gap: '0.5rem' }}>
-            <button className="btn btn-primary btn-sm" onClick={handleSave} disabled={saving}>
-              {saving ? '…' : 'Save'}
-            </button>
-            <button className="btn btn-ghost btn-sm" onClick={() => setEditing(false)}>Cancel</button>
-          </div>
-        </td>
-      </tr>
-    );
-  }
+function WeekRow({ week, onClick }) {
+  const totalResponses = week.townHalls.reduce((s, th) => s + th.totalResponses, 0);
+  const ratedThs = week.townHalls.filter((th) => th.average != null);
+  const avg = ratedThs.length > 0
+    ? ratedThs.reduce((s, th) => s + th.average, 0) / ratedThs.length
+    : null;
 
   return (
-    <tr>
-      <td style={{ fontWeight: 500, fontSize: '0.875rem' }}>{formatDate(row.date)}</td>
-      <td style={{ color: 'var(--text-secondary)', fontSize: '0.875rem' }}>{row.title || '—'}</td>
-      <td><ScoreDots avg={row.average} /></td>
-      <td style={{ color: 'var(--text-secondary)', fontSize: '0.875rem' }}>{row.total_responses}</td>
-      <td>
-        <div style={{ display: 'flex', gap: '0.5rem' }}>
-          <button className="btn btn-ghost btn-sm" onClick={() => setEditing(true)}>Edit</button>
-          <button className="btn btn-danger btn-sm" onClick={handleDelete}>Delete</button>
-        </div>
-      </td>
-    </tr>
+    <button className="week-row" onClick={onClick}>
+      <div className="week-row-label">{week.weekLabel}</div>
+      <div className="week-row-meta">
+        {avg != null
+          ? <span className="score-badge">{avg.toFixed(1)}</span>
+          : <span style={{ color: 'var(--text-muted)' }}>—</span>
+        }
+        <span style={{ color: 'var(--text-muted)', fontSize: '0.8125rem' }}>
+          {totalResponses} {totalResponses === 1 ? 'response' : 'responses'}
+        </span>
+      </div>
+      <span className="week-row-chevron">›</span>
+    </button>
   );
 }
 
-// ── Results tab ────────────────────────────────────────────────────────────────
+// ── Week detail ────────────────────────────────────────────────────────────────
 
 const EMOJIS_LIST = ['😕', '🙂', '😐', '😄', '🚀'];
 
@@ -220,98 +178,22 @@ function TownHallResult({ th }) {
   );
 }
 
-function ResultsTab({ token }) {
-  const [weeks, setWeeks] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [selectedWeek, setSelectedWeek] = useState('');
-
-  useEffect(() => {
-    async function load() {
-      setLoading(true);
-      try {
-        const data = await adminApi.getResults(token);
-        setWeeks(data);
-        if (data.length > 0) setSelectedWeek(data[0].weekKey);
-      } finally {
-        setLoading(false);
-      }
-    }
-    load();
-  }, [token]);
-
-  const currentWeek = weeks.find((w) => w.weekKey === selectedWeek);
-
-  if (loading) {
-    return (
-      <div style={{ padding: '3rem 0', textAlign: 'center' }}>
-        <div className="spinner" />
-      </div>
-    );
-  }
-
-  if (weeks.length === 0) {
-    return (
-      <div style={{ color: 'var(--text-muted)', fontSize: '0.875rem', padding: '1rem 0' }}>
-        No results yet.
-      </div>
-    );
-  }
-
-  return (
-    <div>
-      <div className="week-selector">
-        <label className="form-label" htmlFor="week-select" style={{ marginBottom: '0.375rem', display: 'block' }}>
-          Calendar week
-        </label>
-        <select
-          id="week-select"
-          className="form-input"
-          value={selectedWeek}
-          onChange={(e) => setSelectedWeek(e.target.value)}
-          style={{ maxWidth: '320px' }}
-        >
-          {weeks.map((w) => (
-            <option key={w.weekKey} value={w.weekKey}>
-              {w.weekLabel} ({w.weekKey})
-            </option>
-          ))}
-        </select>
-      </div>
-
-      {currentWeek && currentWeek.townHalls.length === 0 && (
-        <div style={{ color: 'var(--text-muted)', fontSize: '0.875rem' }}>No town halls this week.</div>
-      )}
-
-      {currentWeek && currentWeek.townHalls.map((th) => (
-        <TownHallResult key={th.id} th={th} />
-      ))}
-    </div>
-  );
-}
-
 // ── Main AdminView ─────────────────────────────────────────────────────────────
 
 export function AdminView({ onBack }) {
   const [token, setToken] = useState(() => sessionStorage.getItem('thm_admin_token') || '');
-  const [rows, setRows] = useState([]);
+  const [weeks, setWeeks] = useState([]);
   const [loading, setLoading] = useState(false);
   const [exporting, setExporting] = useState(false);
-  const [activeTab, setActiveTab] = useState('manage'); // 'manage' | 'results'
-
-  const load = useCallback(async () => {
-    if (!token) return;
-    setLoading(true);
-    try {
-      const data = await adminApi.getTownHalls(token);
-      setRows(data);
-    } finally {
-      setLoading(false);
-    }
-  }, [token]);
+  const [selectedWeek, setSelectedWeek] = useState(null);
 
   useEffect(() => {
-    if (token) load();
-  }, [token, load]);
+    if (!token) return;
+    setLoading(true);
+    adminApi.getResults(token)
+      .then(setWeeks)
+      .finally(() => setLoading(false));
+  }, [token]);
 
   function handleLogin(t) {
     sessionStorage.setItem('thm_admin_token', t);
@@ -321,7 +203,8 @@ export function AdminView({ onBack }) {
   function handleLogout() {
     sessionStorage.removeItem('thm_admin_token');
     setToken('');
-    setRows([]);
+    setWeeks([]);
+    setSelectedWeek(null);
   }
 
   async function handleExport() {
@@ -333,86 +216,54 @@ export function AdminView({ onBack }) {
     }
   }
 
-  if (!token) {
-    return <LoginForm onLogin={handleLogin} />;
-  }
+  if (!token) return <LoginForm onLogin={handleLogin} />;
+
+  const currentWeek = weeks.find((w) => w.weekKey === selectedWeek);
 
   return (
     <div className="admin-page">
       <div className="admin-topbar">
         <div>
-          <h1 className="admin-heading">Admin Dashboard</h1>
-          <div style={{ fontSize: '0.8125rem', color: 'var(--text-muted)', marginTop: '0.125rem' }}>
-            Town Hall Meter
-          </div>
+          {selectedWeek ? (
+            <button className="btn btn-ghost btn-sm" onClick={() => setSelectedWeek(null)}>← All weeks</button>
+          ) : (
+            <h1 className="admin-heading">Admin Dashboard</h1>
+          )}
         </div>
         <div style={{ display: 'flex', gap: '0.5rem', alignItems: 'center' }}>
           <button className="btn btn-ghost btn-sm" onClick={handleExport} disabled={exporting}>
             {exporting ? 'Exporting…' : 'Export CSV'}
           </button>
-          {onBack && (
+          {onBack && !selectedWeek && (
             <button className="btn btn-ghost btn-sm" onClick={onBack}>← Back</button>
           )}
           <button className="btn btn-ghost btn-sm" onClick={handleLogout}>Sign Out</button>
         </div>
       </div>
 
-      <div className="admin-tabs">
-        <button
-          className={`admin-tab ${activeTab === 'manage' ? 'active' : ''}`}
-          onClick={() => setActiveTab('manage')}
-        >
-          Manage
-        </button>
-        <button
-          className={`admin-tab ${activeTab === 'results' ? 'active' : ''}`}
-          onClick={() => setActiveTab('results')}
-        >
-          Results
-        </button>
-      </div>
-
-      {activeTab === 'manage' && (
-        <>
-          <div className="card">
-            <h2 style={{ fontSize: '0.875rem', fontWeight: 600, marginBottom: '1.25rem', color: 'var(--text-secondary)' }}>
-              ALL TOWN HALLS
-            </h2>
-
-            {loading ? (
-              <div style={{ padding: '2rem 0', textAlign: 'center' }}>
-                <div className="spinner" />
-              </div>
-            ) : rows.length === 0 ? (
-              <div style={{ color: 'var(--text-muted)', fontSize: '0.875rem', padding: '1rem 0' }}>
-                No town halls yet. The next one will be created automatically on Sunday.
-              </div>
-            ) : (
-              <div style={{ overflowX: 'auto' }}>
-                <table className="admin-table">
-                  <thead>
-                    <tr>
-                      <th>Date</th>
-                      <th>Title</th>
-                      <th>Avg Score</th>
-                      <th>Responses</th>
-                      <th>Actions</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {rows.map((row) => (
-                      <TownHallRow key={row.id} row={row} token={token} onRefresh={load} />
-                    ))}
-                  </tbody>
-                </table>
-              </div>
-            )}
-          </div>
-        </>
-      )}
-
-      {activeTab === 'results' && (
-        <ResultsTab token={token} />
+      {loading ? (
+        <div style={{ padding: '3rem 0', textAlign: 'center' }}>
+          <div className="spinner" />
+        </div>
+      ) : selectedWeek && currentWeek ? (
+        <div>
+          <h2 style={{ fontSize: '1rem', fontWeight: 600, marginBottom: '1.25rem', color: 'var(--text-primary)' }}>
+            {currentWeek.weekLabel}
+          </h2>
+          {currentWeek.townHalls.map((th) => (
+            <TownHallResult key={th.id} th={th} />
+          ))}
+        </div>
+      ) : weeks.length === 0 ? (
+        <div style={{ color: 'var(--text-muted)', fontSize: '0.875rem', padding: '1rem 0' }}>
+          No results yet.
+        </div>
+      ) : (
+        <div className="week-list">
+          {weeks.map((w) => (
+            <WeekRow key={w.weekKey} week={w} onClick={() => setSelectedWeek(w.weekKey)} />
+          ))}
+        </div>
       )}
     </div>
   );
