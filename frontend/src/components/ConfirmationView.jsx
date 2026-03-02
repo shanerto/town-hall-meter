@@ -2,13 +2,13 @@ import { useState } from 'react';
 import { api } from '../api.js';
 import { Confetti } from './Confetti.jsx';
 
-const EMOJI_MAP = { 1: '😕', 2: '🙂', 3: '😐', 4: '😄', 5: '🚀' };
+const EMOJI_MAP = { 1: '🥱', 2: '🤷', 3: '🙂', 4: '👏', 5: '🚀' };
 
 const COMMENT_PROMPTS = {
-  1: 'What missed the mark?',
-  2: 'What could we improve?',
-  3: 'Anything we could sharpen next time?',
-  4: 'What worked well today?',
+  1: 'What made it feel like a snooze?',
+  2: 'What could have made it better?',
+  3: 'What worked well today?',
+  4: 'What stood out most?',
   5: 'What made this one great?',
 };
 

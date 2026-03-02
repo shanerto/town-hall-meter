@@ -1,11 +1,11 @@
 import { useState } from 'react';
 
 const OPTIONS = [
-  { rating: 1, emoji: '😕', label: 'Not it' },
-  { rating: 2, emoji: '😐', label: 'Could be better' },
-  { rating: 3, emoji: '🙂', label: 'Did the job' },
-  { rating: 4, emoji: '😄', label: 'Really good' },
-  { rating: 5, emoji: '🚀', label: "Let's go" },
+  { rating: 1, emoji: '🥱', label: 'Snooze' },
+  { rating: 2, emoji: '🤷', label: 'Fine' },
+  { rating: 3, emoji: '🙂', label: 'Good stuff' },
+  { rating: 4, emoji: '👏', label: 'Strong' },
+  { rating: 5, emoji: '🚀', label: 'Crushed it' },
 ];
 
 function formatDate(dateStr) {
@@ -44,7 +44,7 @@ export function VotingCard({ townHall, onVote, previousRating = null }) {
         </div>
 
         {/* Question */}
-        <div className="question">How valuable was today's Town Hall?</div>
+        <div className="question">How\u2019d we do today?</div>
 
         {/* Emoji selector */}
         <div className="emoji-grid" role="group" aria-label="Rating options">

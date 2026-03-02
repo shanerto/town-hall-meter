@@ -3,8 +3,8 @@ import db from '../db.js';
 
 const router = Router();
 
-const EMOJIS = ['😕', '🙂', '😐', '😄', '🚀'];
-const LABELS = ['Not it', 'Okay-ish', 'Did the job', 'Really good', "Let's go"];
+const EMOJIS = ['🥱', '🤷', '🙂', '👏', '🚀'];
+const LABELS = ['Snooze', 'Fine', 'Good stuff', 'Strong', 'Crushed it'];
 
 // GET /api/votes/status?townhallId=X
 router.get('/status', async (req, res, next) => {

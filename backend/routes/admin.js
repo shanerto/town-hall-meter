@@ -37,8 +37,8 @@ function formatWeekLabel(weekStartStr) {
   return d.toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' });
 }
 
-const EMOJIS = ['😕', '🙂', '😐', '😄', '🚀'];
-const LABELS = ['Not it', 'Okay-ish', 'Did the job', 'Really good', "Let's go"];
+const EMOJIS = ['🥱', '🤷', '🙂', '👏', '🚀'];
+const LABELS = ['Snooze', 'Fine', 'Good stuff', 'Strong', 'Crushed it'];
 
 // GET /api/admin/townhalls
 router.get('/townhalls', requireAdmin, async (req, res, next) => {
