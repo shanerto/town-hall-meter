@@ -5,5 +5,11 @@
   "framework": null,
   "rewrites": [
     { "source": "/api/(.*)", "destination": "/api/handler" }
+  ],
+  "crons": [
+    {
+      "path": "/api/admin/weekly-reset",
+      "schedule": "0 0 * * 0"
+    }
   ]
 }

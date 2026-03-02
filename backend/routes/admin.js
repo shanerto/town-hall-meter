@@ -1,5 +1,6 @@
 import { Router } from 'express';
 import db from '../db.js';
+import { performWeeklyReset } from '../lib/weeklyReset.js';
 
 const router = Router();
 
@@ -256,6 +257,21 @@ router.get('/results', requireAdmin, async (req, res, next) => {
     // Sort weeks newest first
     const weeks = Array.from(weekMap.values()).sort((a, b) => b.weekKey.localeCompare(a.weekKey));
     res.json(weeks);
+  } catch (err) { next(err); }
+});
+
+// POST /api/admin/weekly-reset
+// Called by Vercel Cron every Sunday (x-vercel-cron: 1) or manually with admin token.
+router.post('/weekly-reset', async (req, res, next) => {
+  const isVercelCron = req.headers['x-vercel-cron'] === '1';
+  const auth = req.headers['authorization'];
+  if (!isVercelCron && auth !== `Bearer ${ADMIN_TOKEN}`) {
+    return res.status(401).json({ error: 'Unauthorized' });
+  }
+  try {
+    const nextTownHall = await performWeeklyReset();
+    console.log(`[weekly-reset] Done. Next town hall: ${nextTownHall}`);
+    res.json({ success: true, nextTownHall });
   } catch (err) { next(err); }
 });
 

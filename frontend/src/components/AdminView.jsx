@@ -57,62 +57,6 @@ function LoginForm({ onLogin }) {
   );
 }
 
-function CreateForm({ token, onCreate }) {
-  const [date, setDate] = useState('');
-  const [title, setTitle] = useState('');
-  const [saving, setSaving] = useState(false);
-  const [error, setError] = useState('');
-
-  async function handleSubmit(e) {
-    e.preventDefault();
-    if (!date) return;
-    setSaving(true);
-    setError('');
-    try {
-      await adminApi.createTownHall(token, { date, title: title || undefined });
-      setDate('');
-      setTitle('');
-      onCreate();
-    } catch (err) {
-      setError(err.message);
-    } finally {
-      setSaving(false);
-    }
-  }
-
-  return (
-    <form onSubmit={handleSubmit} className="admin-form" style={{ marginBottom: '1.5rem' }}>
-      <div className="form-row">
-        <div className="form-group">
-          <label className="form-label" htmlFor="th-date">Date</label>
-          <input
-            id="th-date"
-            type="date"
-            className="form-input"
-            value={date}
-            onChange={(e) => setDate(e.target.value)}
-            required
-          />
-        </div>
-        <div className="form-group" style={{ flex: 2 }}>
-          <label className="form-label" htmlFor="th-title">Title (optional)</label>
-          <input
-            id="th-title"
-            type="text"
-            className="form-input"
-            value={title}
-            onChange={(e) => setTitle(e.target.value)}
-            placeholder="e.g. Q2 Town Hall"
-          />
-        </div>
-        <button type="submit" className="btn btn-primary" disabled={!date || saving}>
-          {saving ? 'Adding…' : 'Add'}
-        </button>
-      </div>
-      {error && <div className="error-msg">{error}</div>}
-    </form>
-  );
-}
 
 function TownHallRow({ row, token, onRefresh }) {
   const [editing, setEditing] = useState(false);
@@ -430,13 +374,6 @@ export function AdminView({ onBack }) {
 
       {activeTab === 'manage' && (
         <>
-          <div className="card" style={{ marginBottom: '1.5rem' }}>
-            <h2 style={{ fontSize: '0.875rem', fontWeight: 600, marginBottom: '1rem', color: 'var(--text-secondary)' }}>
-              ADD TOWN HALL
-            </h2>
-            <CreateForm token={token} onCreate={load} />
-          </div>
-
           <div className="card">
             <h2 style={{ fontSize: '0.875rem', fontWeight: 600, marginBottom: '1.25rem', color: 'var(--text-secondary)' }}>
               ALL TOWN HALLS
@@ -448,7 +385,7 @@ export function AdminView({ onBack }) {
               </div>
             ) : rows.length === 0 ? (
               <div style={{ color: 'var(--text-muted)', fontSize: '0.875rem', padding: '1rem 0' }}>
-                No town halls yet. Add one above.
+                No town halls yet. The next one will be created automatically on Sunday.
               </div>
             ) : (
               <div style={{ overflowX: 'auto' }}>

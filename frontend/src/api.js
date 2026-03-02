@@ -65,13 +65,6 @@ export const adminApi = {
   getTownHalls: (token) =>
     request('/admin/townhalls', { headers: { Authorization: `Bearer ${token}` } }),
 
-  createTownHall: (token, data) =>
-    request('/admin/townhalls', {
-      method: 'POST',
-      headers: { Authorization: `Bearer ${token}` },
-      body: JSON.stringify(data),
-    }),
-
   updateTownHall: (token, id, data) =>
     request(`/admin/townhalls/${id}`, {
       method: 'PUT',

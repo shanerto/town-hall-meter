@@ -7,6 +7,7 @@ import { existsSync } from 'fs';
 import townhallsRouter from './routes/townhalls.js';
 import votesRouter from './routes/votes.js';
 import adminRouter from './routes/admin.js';
+import { performWeeklyReset } from './lib/weeklyReset.js';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const PORT = process.env.PORT || 3001;
@@ -55,9 +56,22 @@ app.use((err, req, res, _next) => {
 
 // In Vercel the function host calls the exported app directly; do not bind a port.
 if (!process.env.VERCEL) {
-  app.listen(PORT, () => {
+  app.listen(PORT, async () => {
     console.log(`Town Hall Meter server running on port ${PORT}`);
     console.log(`Admin token: ${process.env.ADMIN_TOKEN || 'admin123 (default — set ADMIN_TOKEN env var)'}`);
+  });
+
+  // Weekly Sunday reset — runs only in self-hosted (non-Vercel) environments.
+  // Vercel uses its own cron job (see vercel.json) to POST /api/admin/weekly-reset.
+  const { default: cron } = await import('node-cron');
+  cron.schedule('0 0 * * 0', async () => {
+    console.log('[cron] Running weekly Sunday reset…');
+    try {
+      const nextTownHall = await performWeeklyReset();
+      console.log(`[cron] Reset complete. Next town hall: ${nextTownHall}`);
+    } catch (err) {
+      console.error('[cron] Weekly reset failed:', err);
+    }
   });
 }
 
