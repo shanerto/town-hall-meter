@@ -64,16 +64,7 @@ export default function App() {
   }
 
   if (isAdmin) {
-    return (
-      <>
-        <nav className="nav">
-          <a className="nav-link" href="#" onClick={(e) => { e.preventDefault(); window.location.hash = ''; }}>
-            ← Voting
-          </a>
-        </nav>
-        <AdminView onBack={() => { window.location.hash = ''; }} />
-      </>
-    );
+    return <AdminView onBack={() => { window.location.hash = ''; }} />;
   }
 
   if (error) {
