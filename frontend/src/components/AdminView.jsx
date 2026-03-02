@@ -82,19 +82,24 @@ const CH = CHART_H - MT - MB;
 function TrendChart({ data }) {
   const [tooltip, setTooltip] = useState(null);
 
-  if (!data || data.length < 2) return null;
+  if (!data || data.length < 1) return null;
 
-  const xOf = (i) => ML + (i / (data.length - 1)) * CW;
+  const xOf = (i) => data.length === 1 ? ML + CW / 2 : ML + (i / (data.length - 1)) * CW;
   const yOf = (avg) => MT + ((5 - avg) / 4) * CH;
 
-  const linePath = data.map((d, i) => `${i === 0 ? 'M' : 'L'}${xOf(i).toFixed(1)},${yOf(d.avg).toFixed(1)}`).join(' ');
-  const areaPath = [
-    `M${xOf(0).toFixed(1)},${yOf(data[0].avg).toFixed(1)}`,
-    ...data.slice(1).map((d, i) => `L${xOf(i + 1).toFixed(1)},${yOf(d.avg).toFixed(1)}`),
-    `L${xOf(data.length - 1).toFixed(1)},${(MT + CH).toFixed(1)}`,
-    `L${xOf(0).toFixed(1)},${(MT + CH).toFixed(1)}`,
-    'Z',
-  ].join(' ');
+  const hasLine = data.length >= 2;
+  const linePath = hasLine
+    ? data.map((d, i) => `${i === 0 ? 'M' : 'L'}${xOf(i).toFixed(1)},${yOf(d.avg).toFixed(1)}`).join(' ')
+    : null;
+  const areaPath = hasLine
+    ? [
+        `M${xOf(0).toFixed(1)},${yOf(data[0].avg).toFixed(1)}`,
+        ...data.slice(1).map((d, i) => `L${xOf(i + 1).toFixed(1)},${yOf(d.avg).toFixed(1)}`),
+        `L${xOf(data.length - 1).toFixed(1)},${(MT + CH).toFixed(1)}`,
+        `L${xOf(0).toFixed(1)},${(MT + CH).toFixed(1)}`,
+        'Z',
+      ].join(' ')
+    : null;
 
   const step = data.length <= 8 ? 1 : data.length <= 16 ? 2 : 3;
 
@@ -130,10 +135,10 @@ function TrendChart({ data }) {
           ))}
 
           {/* Area fill */}
-          <path d={areaPath} fill="rgba(99,102,241,0.08)" />
+          {areaPath && <path d={areaPath} fill="rgba(99,102,241,0.08)" />}
 
           {/* Line */}
-          <path d={linePath} fill="none" stroke="#6366f1" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" />
+          {linePath && <path d={linePath} fill="none" stroke="#6366f1" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" />}
 
           {/* X-axis labels */}
           {data.map((d, i) => {
