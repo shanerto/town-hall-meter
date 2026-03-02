@@ -306,9 +306,8 @@ html, body {
 }
 
 .comments-section {
-  border-top: 1px solid var(--border);
-  padding-top: 1rem;
-  margin-top: 0.25rem;
+  padding-top: 0;
+  margin-top: 0;
 }
 
 .comments-heading {
@@ -364,9 +363,19 @@ html, body {
 }
 
 /* ───────────────────────────────── Results ── */
+
+/* Flat result block — renders directly inside admin-panel, no inner card */
+.th-result {}
+
+.section-divider {
+  height: 1px;
+  background: var(--border);
+  margin: 1.75rem 0;
+}
+
 .results-header {
   text-align: center;
-  margin-bottom: 2rem;
+  margin-bottom: 0;
 }
 
 .results-title {
@@ -385,7 +394,7 @@ html, body {
   display: flex;
   justify-content: center;
   gap: 2.5rem;
-  margin-bottom: 2rem;
+  margin-bottom: 0;
 }
 
 .stat {
@@ -417,7 +426,7 @@ html, body {
   display: flex;
   flex-direction: column;
   gap: 0.625rem;
-  margin-bottom: 2rem;
+  margin-bottom: 0;
 }
 
 .dist-row {
@@ -547,7 +556,7 @@ html, body {
 /* ───────────────────────────────── Admin ── */
 .admin-page {
   padding: 2.5rem 1.5rem;
-  max-width: 860px;
+  max-width: 960px;
   margin: 0 auto;
   width: 100%;
 }

@@ -187,7 +187,7 @@ const EMOJIS_LIST = ['😕', '🙂', '😐', '😄', '🚀'];
 function DistributionBars({ distribution }) {
   const maxCount = Math.max(...distribution.map((d) => d.count), 1);
   return (
-    <div className="distribution" style={{ marginBottom: '1rem' }}>
+    <div className="distribution">
       {distribution.map((d) => (
         <div key={d.rating} className="dist-row">
           <span className="dist-emoji">{d.emoji}</span>
@@ -212,13 +212,17 @@ function TownHallResult({ th }) {
   const usedRatings = [...new Set(th.comments.map((c) => c.rating))].sort();
 
   return (
-    <div className="card" style={{ marginBottom: '1rem' }}>
-      <div className="results-header" style={{ marginBottom: '1rem' }}>
+    <div className="th-result">
+      {/* Title block */}
+      <div className="results-header">
         <div className="results-title">{th.title || 'Town Hall'}</div>
         <div className="results-date">{formatDate(th.date)}</div>
       </div>
 
-      <div className="results-stats" style={{ marginBottom: '1.25rem' }}>
+      <div className="section-divider" />
+
+      {/* Metrics */}
+      <div className="results-stats">
         <div className="stat">
           <span className="stat-value">{th.average != null ? th.average.toFixed(1) : '—'}</span>
           <span className="stat-label">avg rating</span>
@@ -229,9 +233,15 @@ function TownHallResult({ th }) {
         </div>
       </div>
 
+      <div className="section-divider" />
+
+      {/* Ratings breakdown */}
       <DistributionBars distribution={th.distribution} />
 
-      {th.comments.length > 0 && (
+      <div className="section-divider" />
+
+      {/* Comments */}
+      {th.comments.length > 0 ? (
         <div className="comments-section">
           <div className="comments-heading">
             Comments ({th.comments.length})
@@ -269,10 +279,8 @@ function TownHallResult({ th }) {
             ))}
           </div>
         </div>
-      )}
-
-      {th.comments.length === 0 && (
-        <div style={{ fontSize: '0.8125rem', color: 'var(--text-muted)', borderTop: '1px solid var(--border)', paddingTop: '0.75rem' }}>
+      ) : (
+        <div style={{ fontSize: '0.8125rem', color: 'var(--text-muted)' }}>
           No comments for this town hall.
         </div>
       )}
@@ -367,9 +375,6 @@ export function AdminView({ onBack }) {
         </div>
       ) : selectedWeek && currentWeek ? (
         <div>
-          <h2 style={{ fontSize: '1rem', fontWeight: 600, marginBottom: '1.25rem', color: 'var(--text-primary)' }}>
-            {currentWeek.weekLabel}
-          </h2>
           {currentWeek.townHalls.map((th) => (
             <TownHallResult key={th.id} th={th} />
           ))}
