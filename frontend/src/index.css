@@ -24,7 +24,7 @@
 
 html, body {
   min-height: 100%;
-  background: linear-gradient(135deg, #EDE80A 2%, #A1D62C 36%, #8AD137 51%, #0094D8 92%);
+  background: linear-gradient(135deg, #EDE80A 2%, #A1D62C 18%, #8AD137 30%, #0094D8 62%);
   font-family: var(--font);
   color: var(--text-primary);
   -webkit-font-smoothing: antialiased;
