@@ -731,12 +731,6 @@ html, body {
 }
 
 /* ───────────────────────────────── Nav ── */
-.nav {
-  display: flex;
-  justify-content: flex-end;
-  padding: 1rem 1.5rem 0;
-}
-
 .nav-link {
   font-size: 0.8125rem;
   color: var(--text-muted);
@@ -746,6 +740,12 @@ html, body {
 }
 
 .nav-link:hover { color: var(--brand); }
+
+.admin-corner-link {
+  position: fixed;
+  bottom: 1.25rem;
+  left: 1.5rem;
+}
 
 /* ───────────────────────────────── Mobile ── */
 @media (max-width: 480px) {

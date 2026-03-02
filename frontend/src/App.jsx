@@ -94,16 +94,6 @@ export default function App() {
 
   return (
     <>
-      <nav className="nav">
-        <a
-          className="nav-link"
-          href="#admin"
-          onClick={(e) => { e.preventDefault(); window.location.hash = 'admin'; }}
-        >
-          Admin
-        </a>
-      </nav>
-
       {view === 'voting' && (
         <VotingCard townHall={townHall} onVote={handleVote} previousRating={previousRating} />
       )}
@@ -115,6 +105,14 @@ export default function App() {
           previousComment={previousRating !== null ? previousComment : ''}
         />
       )}
+
+      <a
+        className="nav-link admin-corner-link"
+        href="#admin"
+        onClick={(e) => { e.preventDefault(); window.location.hash = 'admin'; }}
+      >
+        Admin
+      </a>
     </>
   );
 }
