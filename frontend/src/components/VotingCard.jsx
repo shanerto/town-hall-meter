@@ -44,7 +44,7 @@ export function VotingCard({ townHall, onVote, previousRating = null }) {
         </div>
 
         {/* Question */}
-        <div className="question">How\u2019d we do today?</div>
+        <div className="question">{'How\u2019d we do today?'}</div>
 
         {/* Emoji selector */}
         <div className="emoji-grid" role="group" aria-label="Rating options">
