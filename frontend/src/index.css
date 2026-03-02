@@ -586,7 +586,7 @@ html, body {
 
 /* Admin login */
 .admin-login {
-  max-width: 380px;
+  max-width: 360px;
   margin: 0 auto;
 }
 
@@ -595,14 +595,9 @@ html, body {
 }
 
 .admin-login-title {
-  font-size: 1.25rem;
-  font-weight: 700;
-  margin-bottom: 0.5rem;
-}
-
-.admin-login-sub {
-  font-size: 0.875rem;
-  color: var(--text-muted);
+  font-size: 1.125rem;
+  font-weight: 600;
+  color: var(--text-primary);
   margin-bottom: 1.5rem;
 }
 

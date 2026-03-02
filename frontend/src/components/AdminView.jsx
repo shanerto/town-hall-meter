@@ -29,22 +29,18 @@ function LoginForm({ onLogin }) {
   return (
     <div className="page admin-login">
       <div className="card">
-        <div className="admin-login-title">Admin Access</div>
-        <div className="admin-login-sub">Enter your admin token to continue.</div>
+        <div className="admin-login-title">Admin Login</div>
         <form onSubmit={handleSubmit} className="admin-form">
-          <div className="form-group">
-            <label className="form-label" htmlFor="token">Admin Token</label>
-            <input
-              id="token"
-              type="password"
-              className="form-input"
-              value={token}
-              onChange={(e) => setToken(e.target.value)}
-              placeholder="Enter token"
-              autoFocus
-            />
-          </div>
-          <button type="submit" className="btn btn-primary">Sign In</button>
+          <input
+            id="token"
+            type="password"
+            className="form-input"
+            value={token}
+            onChange={(e) => setToken(e.target.value)}
+            placeholder="Enter password"
+            autoFocus
+          />
+          <button type="submit" className="btn btn-primary">Log In</button>
           {error && <div className="error-msg">{error}</div>}
         </form>
       </div>
