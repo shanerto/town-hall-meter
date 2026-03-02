@@ -33,7 +33,8 @@ function getWeekStart(dateStr) {
 
 function formatWeekLabel(weekStartStr) {
   const d = new Date(weekStartStr + 'T12:00:00');
-  return 'Week of ' + d.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+  d.setDate(d.getDate() + 2); // Monday → Wednesday
+  return d.toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' });
 }
 
 const EMOJIS = ['😕', '🙂', '😐', '😄', '🚀'];
