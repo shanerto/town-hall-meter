@@ -113,7 +113,7 @@ html, body {
 .emoji-grid {
   display: grid;
   grid-template-columns: repeat(5, 1fr);
-  margin-bottom: 1rem;
+  margin-bottom: 2.5rem;
 }
 
 .emoji-btn {
@@ -149,10 +149,6 @@ html, body {
   background: rgba(0, 0, 0, 0.08);
 }
 
-.emoji-btn.selected .emoji-circle {
-  background: rgba(99, 102, 241, 0.13);
-}
-
 .emoji-glyph {
   font-size: 1.625rem;
   line-height: 1;
@@ -165,66 +161,17 @@ html, body {
   transform: scale(1.12);
 }
 
-.emoji-btn.selected .emoji-glyph {
-  transform: scale(1.1);
-}
-
 .emoji-label {
   font-size: 0.6875rem;
   font-weight: 500;
   color: var(--text-muted);
   text-align: center;
   line-height: 1.25;
-  transition: color 0.18s ease, font-weight 0s;
+  transition: color 0.18s ease;
 }
 
 .emoji-btn:hover .emoji-label {
   color: var(--text-secondary);
-}
-
-.emoji-btn.selected .emoji-label {
-  color: var(--text-primary);
-  font-weight: 600;
-}
-
-/* Selection indicator dot */
-.emoji-dot {
-  width: 5px;
-  height: 5px;
-  border-radius: 50%;
-  background: var(--brand);
-  opacity: 0;
-  transition: opacity 0.18s ease;
-}
-
-.emoji-btn.selected .emoji-dot {
-  opacity: 1;
-}
-
-.vote-helper {
-  text-align: center;
-  font-size: 0.8125rem;
-  color: var(--text-secondary);
-  margin-top: 0.25rem;
-  margin-bottom: 1.75rem;
-  min-height: 1.25rem;
-}
-
-.vote-submit {
-  display: block;
-  width: 100%;
-  padding: 0.75rem 1.5rem;
-  font-size: 0.9375rem;
-  font-weight: 600;
-  border-radius: 0.75rem;
-  letter-spacing: -0.01em;
-  cursor: pointer;
-  transition: background var(--transition), opacity var(--transition);
-}
-
-.vote-submit:disabled {
-  opacity: 0.38;
-  cursor: not-allowed;
 }
 
 /* ───────────────────────────────── Submitting state ── */

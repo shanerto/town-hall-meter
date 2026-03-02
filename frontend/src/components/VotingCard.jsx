@@ -14,24 +14,15 @@ function formatDate(dateStr) {
 }
 
 export function VotingCard({ townHall, onVote, previousRating = null }) {
-  const [selected, setSelected] = useState(previousRating);
   const [submitting, setSubmitting] = useState(false);
   const [logoError, setLogoError] = useState(false);
-  const isUpdate = previousRating !== null;
 
-  function handleSelect(rating) {
+  async function handleSelect(rating) {
     if (submitting) return;
-    setSelected(rating);
-  }
-
-  async function handleSubmit() {
-    if (!selected || submitting) return;
     setSubmitting(true);
     await new Promise((r) => setTimeout(r, 80));
-    onVote(selected);
+    onVote(rating);
   }
-
-  const selectedOption = OPTIONS.find((o) => o.rating === selected);
 
   return (
     <div className="page">
@@ -60,34 +51,18 @@ export function VotingCard({ townHall, onVote, previousRating = null }) {
           {OPTIONS.map((opt) => (
             <button
               key={opt.rating}
-              className={`emoji-btn${selected === opt.rating ? ' selected' : ''}`}
+              className="emoji-btn"
               onClick={() => handleSelect(opt.rating)}
               disabled={submitting}
-              aria-pressed={selected === opt.rating}
-              aria-label={`${opt.label}`}
+              aria-label={opt.label}
             >
               <div className="emoji-circle">
                 <span className="emoji-glyph" aria-hidden="true">{opt.emoji}</span>
               </div>
               <span className="emoji-label">{opt.label}</span>
-              <span className="emoji-dot" aria-hidden="true" />
             </button>
           ))}
         </div>
-
-        {/* Helper text */}
-        <div className="vote-helper" aria-live="polite">
-          {selectedOption ? `Selected: ${selectedOption.label}` : '\u00A0'}
-        </div>
-
-        {/* Submit */}
-        <button
-          className="btn btn-primary vote-submit"
-          onClick={handleSubmit}
-          disabled={!selected || submitting}
-        >
-          {isUpdate ? 'Update rating' : 'Lock it in'}
-        </button>
 
       </div>
     </div>
