@@ -466,6 +466,7 @@ html, body {
   font-size: 0.75rem;
   color: var(--text-muted);
   text-align: right;
+  font-variant-numeric: tabular-nums;
 }
 
 /* Trend section */
