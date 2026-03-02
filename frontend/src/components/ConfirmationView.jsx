@@ -30,14 +30,20 @@ export function ConfirmationView({ rating, townHallId, previousComment }) {
     }
   }
 
+  function handleSkip() {
+    setSaved(true);
+  }
+
   return (
     <>
       <Confetti active={isRocket} />
       <div className="page">
         <div className="card confirmation">
-          <span className="confirmation-emoji" aria-hidden="true">
-            {EMOJI_MAP[rating] || '😄'}
-          </span>
+          <div className="confirmation-emoji-badge">
+            <span className="confirmation-emoji" aria-hidden="true">
+              {EMOJI_MAP[rating] || '😄'}
+            </span>
+          </div>
           <div className="confirmation-message">Thanks — see you next week.</div>
 
           {saved ? (
@@ -45,6 +51,7 @@ export function ConfirmationView({ rating, townHallId, previousComment }) {
           ) : (
             <div className="comment-section">
               <div key={rating} className="comment-prompt">{COMMENT_PROMPTS[rating] ?? 'Anything you want to add?'}</div>
+              <div className="comment-helper">Optional. Anonymous.</div>
               <textarea
                 className="form-input comment-textarea"
                 value={comment}
@@ -53,14 +60,22 @@ export function ConfirmationView({ rating, townHallId, previousComment }) {
                 rows={3}
                 disabled={saving}
               />
-              <button
-                className="btn btn-primary"
-                onClick={handleSend}
-                disabled={saving}
-                style={{ width: '100%' }}
-              >
-                {saving ? 'Saving…' : 'Send comment'}
-              </button>
+              <div className="comment-actions">
+                <button
+                  className="btn btn-skip"
+                  onClick={handleSkip}
+                  disabled={saving}
+                >
+                  Skip
+                </button>
+                <button
+                  className="btn btn-primary"
+                  onClick={handleSend}
+                  disabled={saving}
+                >
+                  {saving ? 'Saving…' : 'Send comment'}
+                </button>
+              </div>
             </div>
           )}
         </div>
