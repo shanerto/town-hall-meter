@@ -42,6 +42,7 @@ async function doInit() {
   await sql`ALTER TABLE votes ADD COLUMN IF NOT EXISTS emoji       TEXT DEFAULT ''`;
   await sql`ALTER TABLE votes ADD COLUMN IF NOT EXISTS emoji_label TEXT DEFAULT ''`;
   await sql`ALTER TABLE votes ADD COLUMN IF NOT EXISTS timestamp   TIMESTAMPTZ DEFAULT NOW()`;
+  await sql`ALTER TABLE votes ADD COLUMN IF NOT EXISTS comment     TEXT`;
 
   // Seed
   const seed = await sql`SELECT id FROM town_halls LIMIT 1`;

@@ -1,15 +1,26 @@
-import { useEffect } from 'react';
+import { useState } from 'react';
+import { api } from '../api.js';
 import { Confetti } from './Confetti.jsx';
 
 const EMOJI_MAP = { 1: '😕', 2: '🙂', 3: '😐', 4: '😄', 5: '🚀' };
 
-export function ConfirmationView({ rating, onDone }) {
+export function ConfirmationView({ rating, townHallId, previousComment }) {
+  const [comment, setComment] = useState(previousComment || '');
+  const [saving, setSaving] = useState(false);
+  const [saved, setSaved] = useState(false);
   const isRocket = rating === 5;
 
-  useEffect(() => {
-    const timer = setTimeout(onDone, 2000);
-    return () => clearTimeout(timer);
-  }, [onDone]);
+  async function handleSend() {
+    setSaving(true);
+    try {
+      await api.submitComment(townHallId, comment.trim() || null);
+    } catch {
+      // Best-effort — still show saved so the user isn't stuck
+    } finally {
+      setSaving(false);
+      setSaved(true);
+    }
+  }
 
   return (
     <>
@@ -20,7 +31,30 @@ export function ConfirmationView({ rating, onDone }) {
             {EMOJI_MAP[rating] || '😄'}
           </span>
           <div className="confirmation-message">Thanks — see you next week.</div>
-          <div className="confirmation-sub">Loading results…</div>
+
+          {saved ? (
+            <div className="comment-saved">✓ Saved</div>
+          ) : (
+            <div className="comment-section">
+              <div className="comment-prompt">Anything you want to add? (Optional)</div>
+              <textarea
+                className="form-input comment-textarea"
+                value={comment}
+                onChange={(e) => setComment(e.target.value)}
+                placeholder="Share your thoughts…"
+                rows={3}
+                disabled={saving}
+              />
+              <button
+                className="btn btn-primary"
+                onClick={handleSend}
+                disabled={saving}
+                style={{ width: '100%' }}
+              >
+                {saving ? 'Saving…' : 'Send comment'}
+              </button>
+            </div>
+          )}
         </div>
       </div>
     </>

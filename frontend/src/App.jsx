@@ -1,8 +1,7 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect } from 'react';
 import { api } from './api.js';
 import { VotingCard } from './components/VotingCard.jsx';
 import { ConfirmationView } from './components/ConfirmationView.jsx';
-import { ResultsView } from './components/ResultsView.jsx';
 import { AdminView } from './components/AdminView.jsx';
 
 // Simple hash-based routing
@@ -20,22 +19,12 @@ export default function App() {
   const hash = useHash();
   const isAdmin = hash === '#admin';
 
-  const [view, setView] = useState('loading'); // 'loading' | 'voting' | 'confirming' | 'results'
+  const [view, setView] = useState('loading'); // 'loading' | 'voting' | 'confirming'
   const [townHall, setTownHall] = useState(null);
   const [lastRating, setLastRating] = useState(null);
   const [previousRating, setPreviousRating] = useState(null);
-  const [results, setResults] = useState(null);
+  const [previousComment, setPreviousComment] = useState('');
   const [error, setError] = useState(null);
-
-  const loadResults = useCallback(async (thId) => {
-    try {
-      const data = await api.getResults(thId);
-      setResults(data);
-      setView('results');
-    } catch (err) {
-      setError(err.message);
-    }
-  }, []);
 
   useEffect(() => {
     if (isAdmin) return;
@@ -48,6 +37,7 @@ export default function App() {
         const status = await api.getVoteStatus(th.id);
         if (status.hasVoted && status.vote) {
           setPreviousRating(status.vote.rating);
+          setPreviousComment(status.vote.comment || '');
         }
         setView('voting');
       } catch (err) {
@@ -56,7 +46,7 @@ export default function App() {
     }
 
     init();
-  }, [isAdmin, loadResults]);
+  }, [isAdmin]);
 
   async function handleVote(rating) {
     setLastRating(rating);
@@ -67,13 +57,10 @@ export default function App() {
       } else {
         await api.submitVote(townHall.id, rating);
       }
+      setPreviousRating(rating);
     } catch (err) {
       setError(err.message);
     }
-  }
-
-  async function handleConfirmationDone() {
-    if (townHall) await loadResults(townHall.id);
   }
 
   if (isAdmin) {
@@ -131,11 +118,11 @@ export default function App() {
       )}
 
       {view === 'confirming' && (
-        <ConfirmationView rating={lastRating} onDone={handleConfirmationDone} />
-      )}
-
-      {view === 'results' && results && (
-        <ResultsView results={results} />
+        <ConfirmationView
+          rating={lastRating}
+          townHallId={townHall?.id}
+          previousComment={previousRating !== null ? previousComment : ''}
+        />
       )}
     </>
   );

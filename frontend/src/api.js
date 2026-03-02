@@ -54,8 +54,11 @@ export const api = {
       body: JSON.stringify({ townHallId, rating }),
     }),
 
-  getResults: (townHallId) =>
-    request(`/townhalls/${townHallId}/results`),
+  submitComment: (townHallId, comment) =>
+    request('/votes/comment', {
+      method: 'PATCH',
+      body: JSON.stringify({ townHallId, comment }),
+    }),
 };
 
 export const adminApi = {
@@ -81,6 +84,9 @@ export const adminApi = {
       method: 'DELETE',
       headers: { Authorization: `Bearer ${token}` },
     }),
+
+  getResults: (token) =>
+    request('/admin/results', { headers: { Authorization: `Bearer ${token}` } }),
 
   downloadExport: async (token) => {
     const res = await fetch(`${BASE}/admin/export`, {

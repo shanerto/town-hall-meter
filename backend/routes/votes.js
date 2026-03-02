@@ -17,7 +17,7 @@ router.get('/status', async (req, res, next) => {
     }
 
     const result = await db.execute({
-      sql: 'SELECT rating, emoji, emoji_label FROM votes WHERE town_hall_id = ? AND user_id = ?',
+      sql: 'SELECT rating, emoji, emoji_label, comment FROM votes WHERE town_hall_id = ? AND user_id = ?',
       args: [townhallId, userId],
     });
 
@@ -61,7 +61,7 @@ router.post('/', async (req, res, next) => {
   } catch (err) { next(err); }
 });
 
-// PUT /api/votes  — update an existing vote
+// PUT /api/votes  — update an existing vote's rating
 router.put('/', async (req, res, next) => {
   try {
     const userId = req.headers['x-user-id'];
@@ -84,6 +84,33 @@ router.put('/', async (req, res, next) => {
     });
 
     res.json({ success: true, rating: ratingNum, emoji, emojiLabel });
+  } catch (err) { next(err); }
+});
+
+// PATCH /api/votes/comment  — add or update optional comment on an existing vote
+router.patch('/comment', async (req, res, next) => {
+  try {
+    const userId = req.headers['x-user-id'];
+    const { townHallId, comment } = req.body;
+
+    if (!userId) return res.status(401).json({ error: 'Missing user ID' });
+    if (!townHallId) return res.status(400).json({ error: 'townHallId is required' });
+
+    const existing = await db.execute({
+      sql: 'SELECT id FROM votes WHERE town_hall_id = ? AND user_id = ?',
+      args: [townHallId, userId],
+    });
+    if (existing.rows.length === 0) {
+      return res.status(403).json({ error: 'You have not voted for this Town Hall' });
+    }
+
+    const commentValue = typeof comment === 'string' && comment.trim() ? comment.trim() : null;
+    await db.execute({
+      sql: 'UPDATE votes SET comment = ? WHERE town_hall_id = ? AND user_id = ?',
+      args: [commentValue, townHallId, userId],
+    });
+
+    res.json({ success: true });
   } catch (err) { next(err); }
 });
 

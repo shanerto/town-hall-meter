@@ -13,6 +13,31 @@ function requireAdmin(req, res, next) {
   next();
 }
 
+// ISO week helpers
+function getISOWeek(dateStr) {
+  const d = new Date(dateStr + 'T12:00:00');
+  const dayOfWeek = d.getDay() || 7;
+  d.setDate(d.getDate() + 4 - dayOfWeek);
+  const yearStart = new Date(d.getFullYear(), 0, 1);
+  const weekNum = Math.ceil((((d - yearStart) / 86400000) + 1) / 7);
+  return { year: d.getFullYear(), week: weekNum };
+}
+
+function getWeekStart(dateStr) {
+  const d = new Date(dateStr + 'T12:00:00');
+  const dayOfWeek = d.getDay() || 7;
+  d.setDate(d.getDate() - dayOfWeek + 1); // rewind to Monday
+  return d.toISOString().split('T')[0];
+}
+
+function formatWeekLabel(weekStartStr) {
+  const d = new Date(weekStartStr + 'T12:00:00');
+  return 'Week of ' + d.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+}
+
+const EMOJIS = ['😕', '🙂', '😐', '😄', '🚀'];
+const LABELS = ['Not it', 'Okay-ish', 'Did the job', 'Really good', "Let's go"];
+
 // GET /api/admin/townhalls
 router.get('/townhalls', requireAdmin, async (req, res, next) => {
   try {
@@ -94,16 +119,22 @@ router.delete('/townhalls/:id', requireAdmin, async (req, res, next) => {
 router.get('/export', requireAdmin, async (req, res, next) => {
   try {
     const result = await db.execute(`
-      SELECT th.date, th.title, v.user_id, v.rating, v.emoji, v.emoji_label, v.timestamp
+      SELECT th.date, th.title, v.user_id, v.rating, v.emoji, v.emoji_label, v.comment, v.timestamp
       FROM votes v
       JOIN town_halls th ON th.id = v.town_hall_id
       ORDER BY th.date DESC, v.timestamp DESC
     `);
 
-    const headers = ['date', 'title', 'user_id', 'rating', 'emoji', 'emoji_label', 'timestamp'];
+    const headers = ['date', 'week', 'user_id', 'rating', 'emoji', 'emoji_label', 'comment', 'timestamp'];
     const csv = [
       headers.join(','),
-      ...result.rows.map((r) => headers.map((h) => JSON.stringify(r[h] ?? '')).join(',')),
+      ...result.rows.map((r) => {
+        const { year, week } = getISOWeek(r.date);
+        const weekStr = `${year}-W${String(week).padStart(2, '0')}`;
+        return [r.date, weekStr, r.user_id, r.rating, r.emoji, r.emoji_label, r.comment ?? '', r.timestamp]
+          .map((v) => JSON.stringify(v ?? ''))
+          .join(',');
+      }),
     ].join('\n');
 
     res.setHeader('Content-Type', 'text/csv');
@@ -137,6 +168,94 @@ router.get('/townhalls/:id/distribution', requireAdmin, async (req, res, next) =
       totalResponses: Number(stats.total),
       distribution: distResult.rows,
     });
+  } catch (err) { next(err); }
+});
+
+// GET /api/admin/results — all town halls grouped by ISO calendar week, with stats + comments
+router.get('/results', requireAdmin, async (req, res, next) => {
+  try {
+    const thResult = await db.execute(`
+      SELECT id, date, title FROM town_halls ORDER BY date DESC
+    `);
+
+    if (thResult.rows.length === 0) return res.json([]);
+
+    // Fetch all votes in one query
+    const votesResult = await db.execute(`
+      SELECT town_hall_id, rating, emoji, emoji_label, comment, timestamp
+      FROM votes
+      ORDER BY town_hall_id, timestamp DESC
+    `);
+
+    // Group votes by town_hall_id
+    const votesByTh = new Map();
+    for (const v of votesResult.rows) {
+      const thId = Number(v.town_hall_id);
+      if (!votesByTh.has(thId)) votesByTh.set(thId, []);
+      votesByTh.get(thId).push(v);
+    }
+
+    const weekMap = new Map();
+
+    for (const th of thResult.rows) {
+      const thVotes = votesByTh.get(Number(th.id)) || [];
+
+      // Aggregate stats
+      const distMap = new Map();
+      let sum = 0;
+      for (const v of thVotes) {
+        const r = Number(v.rating);
+        distMap.set(r, (distMap.get(r) || 0) + 1);
+        sum += r;
+      }
+
+      const distribution = [1, 2, 3, 4, 5].map((r) => ({
+        rating: r,
+        emoji: EMOJIS[r - 1],
+        label: LABELS[r - 1],
+        count: distMap.get(r) || 0,
+      }));
+
+      const totalResponses = thVotes.length;
+      const average = totalResponses > 0 ? Math.round((sum / totalResponses) * 100) / 100 : null;
+
+      const comments = thVotes
+        .filter((v) => v.comment && v.comment.trim())
+        .map((v) => ({
+          rating: Number(v.rating),
+          emoji: v.emoji,
+          emojiLabel: v.emoji_label,
+          comment: v.comment,
+          timestamp: v.timestamp,
+        }));
+
+      const { year, week } = getISOWeek(th.date);
+      const weekKey = `${year}-W${String(week).padStart(2, '0')}`;
+      const weekStart = getWeekStart(th.date);
+
+      if (!weekMap.has(weekKey)) {
+        weekMap.set(weekKey, {
+          weekKey,
+          weekStart,
+          weekLabel: formatWeekLabel(weekStart),
+          townHalls: [],
+        });
+      }
+
+      weekMap.get(weekKey).townHalls.push({
+        id: Number(th.id),
+        date: th.date,
+        title: th.title,
+        average,
+        totalResponses,
+        distribution,
+        comments,
+      });
+    }
+
+    // Sort weeks newest first
+    const weeks = Array.from(weekMap.values()).sort((a, b) => b.weekKey.localeCompare(a.weekKey));
+    res.json(weeks);
   } catch (err) { next(err); }
 });
 
