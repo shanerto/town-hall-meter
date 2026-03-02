@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { adminApi } from '../api.js';
 
 function formatDate(dateStr) {
@@ -68,6 +68,110 @@ function WeekRow({ week, onClick }) {
       </div>
       <span className="week-row-chevron">›</span>
     </button>
+  );
+}
+
+// ── Trend chart ────────────────────────────────────────────────────────────────
+
+const CHART_W = 560;
+const CHART_H = 180;
+const ML = 36, MR = 16, MT = 12, MB = 32;
+const CW = CHART_W - ML - MR;
+const CH = CHART_H - MT - MB;
+
+function TrendChart({ data }) {
+  const [tooltip, setTooltip] = useState(null);
+
+  if (!data || data.length < 2) return null;
+
+  const xOf = (i) => ML + (i / (data.length - 1)) * CW;
+  const yOf = (avg) => MT + ((5 - avg) / 4) * CH;
+
+  const linePath = data.map((d, i) => `${i === 0 ? 'M' : 'L'}${xOf(i).toFixed(1)},${yOf(d.avg).toFixed(1)}`).join(' ');
+  const areaPath = [
+    `M${xOf(0).toFixed(1)},${yOf(data[0].avg).toFixed(1)}`,
+    ...data.slice(1).map((d, i) => `L${xOf(i + 1).toFixed(1)},${yOf(d.avg).toFixed(1)}`),
+    `L${xOf(data.length - 1).toFixed(1)},${(MT + CH).toFixed(1)}`,
+    `L${xOf(0).toFixed(1)},${(MT + CH).toFixed(1)}`,
+    'Z',
+  ].join(' ');
+
+  const step = data.length <= 8 ? 1 : data.length <= 16 ? 2 : 3;
+
+  function tooltipStyle(x, y) {
+    const pctX = (x / CHART_W) * 100;
+    const pctY = (y / CHART_H) * 100;
+    const xShift = x / CHART_W < 0.25 ? '8px' : x / CHART_W > 0.75 ? 'calc(-100% - 8px)' : '-50%';
+    return {
+      left: `${pctX}%`,
+      top: `${pctY}%`,
+      transform: `translate(${xShift}, calc(-100% - 10px))`,
+    };
+  }
+
+  return (
+    <div className="trend-chart-wrap">
+      <div className="trend-chart-header">
+        <span className="trend-chart-title">6-Month Trend</span>
+        <span className="trend-chart-sub">Average weekly score</span>
+      </div>
+      <div style={{ position: 'relative' }}>
+        <svg
+          viewBox={`0 0 ${CHART_W} ${CHART_H}`}
+          className="trend-svg"
+          onMouseLeave={() => setTooltip(null)}
+        >
+          {/* Grid lines */}
+          {[1, 2, 3, 4, 5].map((r) => (
+            <g key={r}>
+              <line x1={ML} y1={yOf(r)} x2={ML + CW} y2={yOf(r)} stroke="#e5e7eb" strokeWidth="1" />
+              <text x={ML - 6} y={yOf(r)} textAnchor="end" dominantBaseline="middle" fontSize="10" fill="#9ca3af">{r}</text>
+            </g>
+          ))}
+
+          {/* Area fill */}
+          <path d={areaPath} fill="rgba(99,102,241,0.08)" />
+
+          {/* Line */}
+          <path d={linePath} fill="none" stroke="#6366f1" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" />
+
+          {/* X-axis labels */}
+          {data.map((d, i) => {
+            if (i % step !== 0 && i !== data.length - 1) return null;
+            return (
+              <text key={i} x={xOf(i)} y={CHART_H - 6} textAnchor="middle" fontSize="10" fill="#9ca3af">
+                {d.shortLabel}
+              </text>
+            );
+          })}
+
+          {/* Dots */}
+          {data.map((d, i) => (
+            <circle
+              key={i}
+              cx={xOf(i)}
+              cy={yOf(d.avg)}
+              r="5"
+              fill="#6366f1"
+              stroke="#ffffff"
+              strokeWidth="2"
+              style={{ cursor: 'default' }}
+              onMouseEnter={() => setTooltip({ d, x: xOf(i), y: yOf(d.avg) })}
+            />
+          ))}
+        </svg>
+
+        {tooltip && (
+          <div className="chart-tooltip" style={tooltipStyle(tooltip.x, tooltip.y)}>
+            <div className="chart-tooltip-label">{tooltip.d.weekLabel}</div>
+            <div className="chart-tooltip-score">{tooltip.d.avg.toFixed(1)} / 5</div>
+            <div className="chart-tooltip-responses">
+              {tooltip.d.totalResponses} {tooltip.d.totalResponses === 1 ? 'response' : 'responses'}
+            </div>
+          </div>
+        )}
+      </div>
+    </div>
   );
 }
 
@@ -213,6 +317,23 @@ export function AdminView({ onBack }) {
 
   const currentWeek = weeks.find((w) => w.weekKey === selectedWeek);
 
+  // 6-month rolling trend: oldest → newest, only weeks with votes
+  const sixMonthsAgo = new Date();
+  sixMonthsAgo.setMonth(sixMonthsAgo.getMonth() - 6);
+  const trendData = [...weeks]
+    .reverse()
+    .filter((w) => new Date(w.weekStart + 'T12:00:00') >= sixMonthsAgo)
+    .map((w) => {
+      const totalResponses = w.townHalls.reduce((s, th) => s + th.totalResponses, 0);
+      const weightedSum = w.townHalls.reduce((s, th) => s + (th.average ?? 0) * th.totalResponses, 0);
+      const avg = totalResponses > 0 ? weightedSum / totalResponses : null;
+      const d = new Date(w.weekStart + 'T12:00:00');
+      d.setDate(d.getDate() + 2); // Monday → Wednesday
+      const shortLabel = d.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+      return { weekKey: w.weekKey, weekLabel: w.weekLabel, shortLabel, avg, totalResponses };
+    })
+    .filter((d) => d.avg !== null);
+
   return (
     <div className="admin-page">
       <div className="admin-panel">
@@ -253,11 +374,14 @@ export function AdminView({ onBack }) {
           No results yet.
         </div>
       ) : (
-        <div className="week-list">
-          {weeks.map((w) => (
-            <WeekRow key={w.weekKey} week={w} onClick={() => setSelectedWeek(w.weekKey)} />
-          ))}
-        </div>
+        <>
+          <TrendChart data={trendData} />
+          <div className="week-list">
+            {weeks.map((w) => (
+              <WeekRow key={w.weekKey} week={w} onClick={() => setSelectedWeek(w.weekKey)} />
+            ))}
+          </div>
+        </>
       )}
       </div>
     </div>

@@ -473,6 +473,71 @@ html, body {
   overflow: hidden;
 }
 
+/* ───────────────────────────────── Trend chart ── */
+.trend-chart-wrap {
+  margin-bottom: 2rem;
+  padding-bottom: 1.75rem;
+  border-bottom: 1px solid var(--border);
+  animation: fadeIn 0.4s ease;
+}
+
+.trend-chart-header {
+  display: flex;
+  align-items: baseline;
+  gap: 0.625rem;
+  margin-bottom: 0.875rem;
+}
+
+.trend-chart-title {
+  font-size: 0.8125rem;
+  font-weight: 600;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+}
+
+.trend-chart-sub {
+  font-size: 0.75rem;
+  color: var(--text-muted);
+}
+
+.trend-svg {
+  display: block;
+  width: 100%;
+  height: auto;
+  overflow: visible;
+}
+
+.chart-tooltip {
+  position: absolute;
+  pointer-events: none;
+  background: var(--text-primary);
+  color: #fff;
+  border-radius: 0.5rem;
+  padding: 0.5rem 0.75rem;
+  font-size: 0.75rem;
+  line-height: 1.4;
+  white-space: nowrap;
+  z-index: 10;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.18);
+}
+
+.chart-tooltip-label {
+  font-weight: 600;
+  margin-bottom: 0.125rem;
+}
+
+.chart-tooltip-score {
+  font-size: 0.8125rem;
+  font-weight: 700;
+  color: #a5b4fc;
+}
+
+.chart-tooltip-responses {
+  color: #d1d5db;
+  font-size: 0.6875rem;
+}
+
 /* ───────────────────────────────── Admin ── */
 .admin-page {
   padding: 2.5rem 1.5rem;
