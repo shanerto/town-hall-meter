@@ -4,6 +4,14 @@ import { Confetti } from './Confetti.jsx';
 
 const EMOJI_MAP = { 1: '😕', 2: '🙂', 3: '😐', 4: '😄', 5: '🚀' };
 
+const COMMENT_PROMPTS = {
+  1: 'What missed the mark?',
+  2: 'What could we improve?',
+  3: 'Anything we could sharpen next time?',
+  4: 'What worked well today?',
+  5: 'What made this one great?',
+};
+
 export function ConfirmationView({ rating, townHallId, previousComment }) {
   const [comment, setComment] = useState(previousComment || '');
   const [saving, setSaving] = useState(false);
@@ -36,7 +44,7 @@ export function ConfirmationView({ rating, townHallId, previousComment }) {
             <div className="comment-saved">✓ Saved</div>
           ) : (
             <div className="comment-section">
-              <div className="comment-prompt">Anything you want to add? (Optional)</div>
+              <div key={rating} className="comment-prompt">{COMMENT_PROMPTS[rating] ?? 'Anything you want to add?'}</div>
               <textarea
                 className="form-input comment-textarea"
                 value={comment}
