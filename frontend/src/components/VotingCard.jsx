@@ -2,8 +2,8 @@ import { useState } from 'react';
 
 const OPTIONS = [
   { rating: 1, emoji: '😕', label: 'Not it' },
-  { rating: 2, emoji: '🙂', label: 'Okay-ish' },
-  { rating: 3, emoji: '😐', label: 'Did the job' },
+  { rating: 2, emoji: '😐', label: 'Could be better' },
+  { rating: 3, emoji: '🙂', label: 'Did the job' },
   { rating: 4, emoji: '😄', label: 'Really good' },
   { rating: 5, emoji: '🚀', label: "Let's go" },
 ];
