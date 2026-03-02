@@ -24,13 +24,8 @@
 
 html, body {
   min-height: 100%;
-  /* Softened Town Hall brand gradient — mixed with white for less saturation */
-  background: linear-gradient(
-    135deg,
-    color-mix(in srgb, #A3DCE3 55%, white) 0%,
-    color-mix(in srgb, #AEEADA 55%, white) 50%,
-    color-mix(in srgb, #B5EAB2 55%, white) 100%
-  );
+  /* Softened Town Hall brand gradient (teal-blue → teal → fresh green) */
+  background: linear-gradient(135deg, #A3DCE3 0%, #AEEADA 50%, #B5EAB2 100%);
   font-family: var(--font);
   color: var(--text-primary);
   -webkit-font-smoothing: antialiased;
