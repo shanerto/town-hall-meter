@@ -24,8 +24,13 @@
 
 html, body {
   min-height: 100%;
-  /* Softened Town Hall brand gradient (teal-blue → teal → fresh green) */
-  background: linear-gradient(135deg, #A3DCE3 0%, #AEEADA 50%, #B5EAB2 100%);
+  /* Softened Town Hall brand gradient — mixed with white for less saturation */
+  background: linear-gradient(
+    135deg,
+    color-mix(in srgb, #A3DCE3 55%, white) 0%,
+    color-mix(in srgb, #AEEADA 55%, white) 50%,
+    color-mix(in srgb, #B5EAB2 55%, white) 100%
+  );
   font-family: var(--font);
   color: var(--text-primary);
   -webkit-font-smoothing: antialiased;
@@ -241,7 +246,7 @@ html, body {
 .week-list {
   display: flex;
   flex-direction: column;
-  gap: 0.5rem;
+  gap: 0.625rem;
 }
 
 .week-row {
@@ -249,37 +254,54 @@ html, body {
   align-items: center;
   gap: 1rem;
   width: 100%;
-  padding: 1rem 1.25rem;
-  background: var(--surface);
+  padding: 1.125rem 1.25rem;
+  background: #ffffff;
   border: 1px solid var(--border);
-  border-radius: 0.75rem;
+  border-radius: 0.875rem;
   cursor: pointer;
   text-align: left;
-  transition: border-color 0.15s ease, box-shadow 0.15s ease;
+  transition: border-color 0.15s ease, background 0.15s ease, box-shadow 0.15s ease;
 }
 
 .week-row:hover {
   border-color: var(--brand);
+  background: var(--brand-light);
   box-shadow: 0 0 0 3px color-mix(in srgb, var(--brand) 10%, transparent);
 }
 
 .week-row-label {
   flex: 1;
-  font-weight: 500;
+  font-weight: 600;
   font-size: 0.9375rem;
   color: var(--text-primary);
 }
 
 .week-row-meta {
   display: flex;
-  align-items: center;
-  gap: 0.75rem;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 0.125rem;
+}
+
+.week-row-score {
+  font-size: 1.5rem;
+  font-weight: 700;
+  letter-spacing: -0.03em;
+  color: var(--text-primary);
+  line-height: 1;
+}
+
+.week-row-responses {
+  font-size: 0.75rem;
+  color: var(--text-muted);
+  font-weight: 400;
 }
 
 .week-row-chevron {
-  font-size: 1.25rem;
+  font-size: 1.375rem;
   color: var(--text-muted);
   line-height: 1;
+  margin-left: 0.25rem;
 }
 
 .comments-section {
@@ -458,10 +480,17 @@ html, body {
 
 /* ───────────────────────────────── Admin ── */
 .admin-page {
-  padding: 2rem 1rem;
-  max-width: 900px;
+  padding: 2.5rem 1.5rem;
+  max-width: 860px;
   margin: 0 auto;
   width: 100%;
+}
+
+.admin-panel {
+  background: #ffffff;
+  border-radius: 1.5rem;
+  box-shadow: 0 8px 48px rgba(0, 0, 0, 0.09), 0 2px 8px rgba(0, 0, 0, 0.05);
+  padding: 2.5rem;
 }
 
 .admin-topbar {
@@ -472,9 +501,10 @@ html, body {
 }
 
 .admin-heading {
-  font-size: 1.25rem;
+  font-size: 1.375rem;
   font-weight: 700;
   letter-spacing: -0.02em;
+  color: var(--text-primary);
 }
 
 .btn {
@@ -498,11 +528,11 @@ html, body {
 .btn-primary:hover { background: #4f46e5; }
 
 .btn-ghost {
-  background: transparent;
-  color: var(--text-secondary);
+  background: #ffffff;
+  color: var(--text-primary);
   border: 1px solid var(--border);
 }
-.btn-ghost:hover { background: var(--bg); }
+.btn-ghost:hover { background: #f3f4f6; }
 
 .btn-danger {
   background: transparent;
@@ -678,6 +708,11 @@ html, body {
 
   .admin-page {
     padding: 1rem;
+  }
+
+  .admin-panel {
+    padding: 1.5rem 1.25rem;
+    border-radius: 1.125rem;
   }
 
   .form-row {

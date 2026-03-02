@@ -65,11 +65,8 @@ function WeekRow({ week, onClick }) {
     <button className="week-row" onClick={onClick}>
       <div className="week-row-label">{week.weekLabel}</div>
       <div className="week-row-meta">
-        {avg != null
-          ? <span className="score-badge">{avg.toFixed(1)}</span>
-          : <span style={{ color: 'var(--text-muted)' }}>—</span>
-        }
-        <span style={{ color: 'var(--text-muted)', fontSize: '0.8125rem' }}>
+        <span className="week-row-score">{avg != null ? avg.toFixed(1) : '—'}</span>
+        <span className="week-row-responses">
           {totalResponses} {totalResponses === 1 ? 'response' : 'responses'}
         </span>
       </div>
@@ -222,6 +219,7 @@ export function AdminView({ onBack }) {
 
   return (
     <div className="admin-page">
+      <div className="admin-panel">
       <div className="admin-topbar">
         <div>
           {selectedWeek ? (
@@ -265,6 +263,7 @@ export function AdminView({ onBack }) {
           ))}
         </div>
       )}
+      </div>
     </div>
   );
 }
