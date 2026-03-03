@@ -222,7 +222,7 @@ html, body {
 
 /* Comment section inside confirmation */
 .comment-section {
-  text-align: left;
+  text-align: center;
 }
 
 .comment-prompt {
@@ -257,7 +257,7 @@ html, body {
 
 .comment-actions {
   display: flex;
-  justify-content: flex-end;
+  justify-content: center;
   align-items: center;
   gap: 0.5rem;
 }
