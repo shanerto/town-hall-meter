@@ -134,8 +134,8 @@ html, body {
 }
 
 .emoji-circle {
-  width: 58px;
-  height: 58px;
+  width: 64px;
+  height: 64px;
   border-radius: 50%;
   background: rgba(0, 0, 0, 0.04);
   display: flex;
@@ -806,8 +806,8 @@ html, body {
   }
 
   .emoji-circle {
-    width: 48px;
-    height: 48px;
+    width: 53px;
+    height: 53px;
   }
 
   .emoji-glyph {
