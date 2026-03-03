@@ -14,9 +14,9 @@ const COMMENT_PROMPTS = {
 
 export function ConfirmationView({ rating, townHallId, previousComment }) {
   const [comment, setComment] = useState(previousComment || '');
-  const [commentOpen, setCommentOpen] = useState(false);
   const [saving, setSaving] = useState(false);
   const [sent, setSent] = useState(false);
+  const [skipped, setSkipped] = useState(false);
   const isRocket = rating === 5;
 
   async function handleSend() {
@@ -46,7 +46,7 @@ export function ConfirmationView({ rating, townHallId, previousComment }) {
 
           {sent ? (
             <div className="comment-sent">Comment sent.</div>
-          ) : commentOpen ? (
+          ) : skipped ? null : (
             <div className="comment-section">
               <div key={rating} className="comment-prompt">
                 {COMMENT_PROMPTS[rating] ?? 'Anything you want to add?'}
@@ -59,22 +59,20 @@ export function ConfirmationView({ rating, townHallId, previousComment }) {
                 placeholder="Share your thoughts…"
                 rows={3}
                 disabled={saving}
-                autoFocus
               />
               <div className="comment-actions">
+                <button className="btn-skip" onClick={() => setSkipped(true)} disabled={saving}>
+                  Skip
+                </button>
                 <button
                   className="btn btn-primary"
                   onClick={handleSend}
                   disabled={saving}
                 >
-                  {saving ? 'Saving…' : 'Submit'}
+                  {saving ? 'Saving…' : 'Send comment'}
                 </button>
               </div>
             </div>
-          ) : (
-            <button className="comment-trigger" onClick={() => setCommentOpen(true)}>
-              Want to leave a comment?
-            </button>
           )}
         </div>
       </div>

@@ -212,42 +212,31 @@ html, body {
   to   { transform: scale(1);   opacity: 1; }
 }
 
+@keyframes fadeInUp {
+  from { opacity: 0; transform: translateY(5px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
 .confirmation-message {
   font-size: 1.25rem;
   font-weight: 600;
   letter-spacing: -0.02em;
   color: var(--text-primary);
   margin-bottom: 0.375rem;
+  animation: fadeInUp 200ms 60ms ease both;
 }
 
 .vote-recorded {
   font-size: 0.75rem;
   color: var(--text-muted);
-  margin-bottom: 1.75rem;
+  margin-bottom: 2.5rem;
+  animation: fadeInUp 180ms 130ms ease both;
 }
 
 /* Comment section inside confirmation */
-.comment-trigger {
-  background: none;
-  border: none;
-  padding: 0;
-  font-size: 0.8125rem;
-  font-family: var(--font);
-  color: var(--text-muted);
-  text-decoration: underline;
-  text-underline-offset: 2px;
-  cursor: pointer;
-}
-.comment-trigger:hover { color: var(--text-secondary); }
-
-@keyframes commentReveal {
-  from { opacity: 0; transform: translateY(-6px); }
-  to   { opacity: 1; transform: translateY(0); }
-}
-
 .comment-section {
   text-align: center;
-  animation: commentReveal 220ms ease;
+  animation: fadeInUp 200ms 200ms ease both;
 }
 
 .comment-prompt {
@@ -275,14 +264,24 @@ html, body {
 
 .comment-actions {
   display: flex;
-  justify-content: center;
+  justify-content: space-between;
   align-items: center;
-  gap: 0.5rem;
 }
 
 .comment-actions .btn-primary {
   padding: 0.5rem 0.875rem;
 }
+
+.btn-skip {
+  background: none;
+  border: none;
+  padding: 0;
+  font-size: 0.8125rem;
+  font-family: var(--font);
+  color: var(--text-muted);
+  cursor: pointer;
+}
+.btn-skip:hover { color: var(--text-secondary); }
 
 .comment-sent {
   font-size: 0.8125rem;
