@@ -14,8 +14,9 @@ const COMMENT_PROMPTS = {
 
 export function ConfirmationView({ rating, townHallId, previousComment }) {
   const [comment, setComment] = useState(previousComment || '');
+  const [commentOpen, setCommentOpen] = useState(false);
   const [saving, setSaving] = useState(false);
-  const [saved, setSaved] = useState(false);
+  const [sent, setSent] = useState(false);
   const isRocket = rating === 5;
 
   async function handleSend() {
@@ -23,10 +24,10 @@ export function ConfirmationView({ rating, townHallId, previousComment }) {
     try {
       await api.submitComment(townHallId, comment.trim() || null);
     } catch {
-      // Best-effort — still show saved so the user isn't stuck
+      // Best-effort — still show sent so the user isn't stuck
     } finally {
       setSaving(false);
-      setSaved(true);
+      setSent(true);
     }
   }
 
@@ -41,10 +42,11 @@ export function ConfirmationView({ rating, townHallId, previousComment }) {
             </span>
           </div>
           <div className="confirmation-message">Thanks — see you next week.</div>
+          <div className="vote-recorded">Your vote has been recorded.</div>
 
-          {saved ? (
-            <div className="comment-saved">✓ Saved</div>
-          ) : (
+          {sent ? (
+            <div className="comment-sent">Comment sent.</div>
+          ) : commentOpen ? (
             <div className="comment-section">
               <div key={rating} className="comment-prompt">
                 {COMMENT_PROMPTS[rating] ?? 'Anything you want to add?'}
@@ -57,6 +59,7 @@ export function ConfirmationView({ rating, townHallId, previousComment }) {
                 placeholder="Share your thoughts…"
                 rows={3}
                 disabled={saving}
+                autoFocus
               />
               <div className="comment-actions">
                 <button
@@ -64,10 +67,14 @@ export function ConfirmationView({ rating, townHallId, previousComment }) {
                   onClick={handleSend}
                   disabled={saving}
                 >
-                  {saving ? 'Saving…' : 'Submit'}
+                  {saving ? 'Saving…' : 'Send comment'}
                 </button>
               </div>
             </div>
+          ) : (
+            <button className="comment-trigger" onClick={() => setCommentOpen(true)}>
+              Want to leave a comment?
+            </button>
           )}
         </div>
       </div>
