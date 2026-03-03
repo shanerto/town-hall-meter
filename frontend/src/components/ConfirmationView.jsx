@@ -67,7 +67,7 @@ export function ConfirmationView({ rating, townHallId, previousComment }) {
                   onClick={handleSend}
                   disabled={saving}
                 >
-                  {saving ? 'Saving…' : 'Send comment'}
+                  {saving ? 'Saving…' : 'Submit'}
                 </button>
               </div>
             </div>
