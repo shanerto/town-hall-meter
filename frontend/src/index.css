@@ -198,7 +198,7 @@ html, body {
   display: flex;
   align-items: center;
   justify-content: center;
-  margin: 0 auto 1.25rem;
+  margin: 0 auto 0.875rem;
 }
 
 .confirmation-emoji {
@@ -213,11 +213,11 @@ html, body {
 }
 
 .confirmation-message {
-  font-size: 1rem;
+  font-size: 1.125rem;
   font-weight: 600;
   letter-spacing: -0.02em;
   color: var(--text-primary);
-  margin-bottom: 2rem;
+  margin-bottom: 2.25rem;
 }
 
 /* Comment section inside confirmation */
@@ -229,19 +229,18 @@ html, body {
   font-size: 0.8125rem;
   font-weight: 500;
   color: var(--text-secondary);
-  margin-bottom: 0.25rem;
+  margin-bottom: 0.625rem;
   animation: commentPromptFade 175ms ease;
+}
+
+.comment-prompt-optional {
+  color: var(--text-muted);
+  font-weight: 400;
 }
 
 @keyframes commentPromptFade {
   from { opacity: 0; }
   to   { opacity: 1; }
-}
-
-.comment-helper {
-  font-size: 0.6875rem;
-  color: var(--text-muted);
-  margin-bottom: 0.625rem;
 }
 
 .comment-textarea {

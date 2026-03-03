@@ -46,8 +46,10 @@ export function ConfirmationView({ rating, townHallId, previousComment }) {
             <div className="comment-saved">✓ Saved</div>
           ) : (
             <div className="comment-section">
-              <div key={rating} className="comment-prompt">{COMMENT_PROMPTS[rating] ?? 'Anything you want to add?'}</div>
-              <div className="comment-helper">Optional. Anonymous.</div>
+              <div key={rating} className="comment-prompt">
+                {COMMENT_PROMPTS[rating] ?? 'Anything you want to add?'}
+                <span className="comment-prompt-optional"> (Optional)</span>
+              </div>
               <textarea
                 className="form-input comment-textarea"
                 value={comment}
