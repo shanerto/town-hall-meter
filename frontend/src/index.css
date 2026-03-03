@@ -213,7 +213,7 @@ html, body {
 }
 
 .confirmation-message {
-  font-size: 1.125rem;
+  font-size: 1.25rem;
   font-weight: 600;
   letter-spacing: -0.02em;
   color: var(--text-primary);
@@ -275,7 +275,7 @@ html, body {
 
 .comment-actions {
   display: flex;
-  justify-content: flex-end;
+  justify-content: center;
   align-items: center;
   gap: 0.5rem;
 }
