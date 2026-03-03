@@ -1,8 +1,9 @@
 import { useState } from 'react';
 import { api } from '../api.js';
 import { Confetti } from './Confetti.jsx';
+import { AnimatedEmoji } from './AnimatedEmoji.jsx';
 
-const EMOJI_MAP = { 1: '🥱', 2: '🤷', 3: '🙂', 4: '👏', 5: '🚀' };
+const RATING_TO_OPTION = { 1: 'snooze', 2: 'fine', 3: 'goodstuff', 4: 'strong', 5: 'crushedit' };
 
 const COMMENT_PROMPTS = {
   1: 'What made it feel like a snooze?',
@@ -37,9 +38,12 @@ export function ConfirmationView({ rating, townHallId, previousComment }) {
       <div className="page">
         <div className="card confirmation">
           <div className="confirmation-emoji-badge">
-            <span className="confirmation-emoji" aria-hidden="true">
-              {EMOJI_MAP[rating] || '😄'}
-            </span>
+            <AnimatedEmoji
+              option={RATING_TO_OPTION[rating] ?? 'crushedit'}
+              mode="loop"
+              size={56}
+              className="confirmation-emoji"
+            />
           </div>
           <div className="confirmation-message">Thanks — see you next week.</div>
           <div className="vote-recorded">Your vote has been recorded.</div>

@@ -1,11 +1,12 @@
 import { useState } from 'react';
+import { AnimatedEmoji } from './AnimatedEmoji.jsx';
 
 const OPTIONS = [
-  { rating: 1, emoji: '🥱', label: 'Snooze' },
-  { rating: 2, emoji: '🤷', label: 'Fine' },
-  { rating: 3, emoji: '🙂', label: 'Good stuff' },
-  { rating: 4, emoji: '👏', label: 'Strong' },
-  { rating: 5, emoji: '🚀', label: 'Crushed it' },
+  { rating: 1, emoji: '🥱', label: 'Snooze',    lottieKey: 'snooze' },
+  { rating: 2, emoji: '🤷', label: 'Fine',       lottieKey: 'fine' },
+  { rating: 3, emoji: '🙂', label: 'Good stuff', lottieKey: 'goodstuff' },
+  { rating: 4, emoji: '👏', label: 'Strong',     lottieKey: 'strong' },
+  { rating: 5, emoji: '🚀', label: 'Crushed it', lottieKey: 'crushedit' },
 ];
 
 function formatDate(dateStr) {
@@ -16,6 +17,7 @@ function formatDate(dateStr) {
 export function VotingCard({ townHall, onVote, previousRating = null }) {
   const [submitting, setSubmitting] = useState(false);
   const [logoError, setLogoError] = useState(false);
+  const [hoveredRating, setHoveredRating] = useState(null);
 
   async function handleSelect(rating) {
     if (submitting) return;
@@ -55,9 +57,15 @@ export function VotingCard({ townHall, onVote, previousRating = null }) {
               onClick={() => handleSelect(opt.rating)}
               disabled={submitting}
               aria-label={opt.label}
+              onMouseEnter={() => setHoveredRating(opt.rating)}
+              onMouseLeave={() => setHoveredRating(null)}
             >
               <div className="emoji-circle">
-                <span className="emoji-glyph" aria-hidden="true">{opt.emoji}</span>
+                {hoveredRating === opt.rating ? (
+                  <AnimatedEmoji option={opt.lottieKey} mode="hover" size={42} />
+                ) : (
+                  <span className="emoji-glyph" aria-hidden="true">{opt.emoji}</span>
+                )}
               </div>
               <span className="emoji-label">{opt.label}</span>
             </button>
