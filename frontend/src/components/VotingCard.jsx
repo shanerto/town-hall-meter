@@ -2,11 +2,11 @@ import { useState } from 'react';
 import { AnimatedEmoji } from './AnimatedEmoji.jsx';
 
 const OPTIONS = [
-  { rating: 1, emoji: '🥱', label: 'Snooze',    lottieKey: 'snooze' },
-  { rating: 2, emoji: '🤷', label: 'Fine',       lottieKey: 'fine' },
-  { rating: 3, emoji: '🙂', label: 'Good stuff', lottieKey: 'goodstuff' },
-  { rating: 4, emoji: '👏', label: 'Strong',     lottieKey: 'strong' },
-  { rating: 5, emoji: '🚀', label: 'Crushed it', lottieKey: 'crushedit' },
+  { rating: 1, label: 'Snooze',    lottieKey: 'snooze' },
+  { rating: 2, label: 'Fine',       lottieKey: 'fine' },
+  { rating: 3, label: 'Good stuff', lottieKey: 'goodstuff' },
+  { rating: 4, label: 'Strong',     lottieKey: 'strong' },
+  { rating: 5, label: 'Crushed it', lottieKey: 'crushedit' },
 ];
 
 function formatDate(dateStr) {
@@ -61,11 +61,12 @@ export function VotingCard({ townHall, onVote, previousRating = null }) {
               onMouseLeave={() => setHoveredRating(null)}
             >
               <div className="emoji-circle">
-                {hoveredRating === opt.rating ? (
-                  <AnimatedEmoji option={opt.lottieKey} mode="hover" size={42} />
-                ) : (
-                  <span className="emoji-glyph" aria-hidden="true">{opt.emoji}</span>
-                )}
+                <AnimatedEmoji
+                  option={opt.lottieKey}
+                  mode="hover"
+                  isHovered={hoveredRating === opt.rating}
+                  size={42}
+                />
               </div>
               <span className="emoji-label">{opt.label}</span>
             </button>

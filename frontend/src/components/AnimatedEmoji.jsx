@@ -1,15 +1,15 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import Lottie from 'lottie-react';
 
 const OPTION_DATA = {
-  snooze:    { emoji: '🥱', src: '/snooze.json' },
-  fine:      { emoji: '🤷', src: '/fine.json' },
-  goodstuff: { emoji: '🙂', src: '/goodstuff.json' },
-  strong:    { emoji: '👏', src: '/strong.json' },
-  crushedit: { emoji: '🚀', src: '/crushedit.json' },
+  snooze:    { src: '/snooze.json' },
+  fine:      { src: '/fine.json' },
+  goodstuff: { src: '/goodstuff.json' },
+  strong:    { src: '/strong.json' },
+  crushedit: { src: '/crushedit.json' },
 };
 
-// Module-level cache so fetched JSON survives remounts
+// Module-level cache so each JSON file is fetched only once per session
 const animCache = {};
 
 function usePrefersReducedMotion() {
@@ -29,38 +29,56 @@ function usePrefersReducedMotion() {
  * AnimatedEmoji
  *
  * Props:
- *   option   – one of: snooze | fine | goodstuff | strong | crushedit
- *   mode     – "hover"  → parent mounts this only while hovered; always plays immediately
- *              "loop"   → always mounted; plays looping animation
- *   size     – number (px). Both static emoji and Lottie use this exact size, preventing layout shift.
- *   className – forwarded to the outer wrapper span (e.g. for pop animation on confirm screen)
+ *   option     – snooze | fine | goodstuff | strong | crushedit
+ *   mode       – "hover" | "loop"
+ *   isHovered  – (hover mode) boolean from parent; true = play, false = stop + reset to frame 0
+ *   size       – number (px); wrapper and Lottie use identical dimensions — no layout shift
+ *   className  – forwarded to outer wrapper span
+ *
+ * Behavior:
+ *   hover mode  – autoplay=false, loop=true; ref-controlled play/stop based on isHovered
+ *   loop mode   – autoplay=true, loop=true (both disabled when prefers-reduced-motion)
+ *
+ * The Lottie JSON is always fetched (reduced-motion users still see the still frame).
+ * A fixed-size empty span is rendered while the fetch is in flight.
  */
-export function AnimatedEmoji({ option, mode, size, className }) {
+export function AnimatedEmoji({ option, mode, isHovered, size, className }) {
   const [animData, setAnimData] = useState(() => animCache[option] ?? null);
+  const lottieRef = useRef(null);
   const reducedMotion = usePrefersReducedMotion();
 
-  const data = OPTION_DATA[option];
-
+  // Fetch animation data — always, so we can show frame 0 even with reduced motion
   useEffect(() => {
-    if (reducedMotion) return;
     if (animCache[option]) {
-      setAnimData(animCache[option]);
+      if (!animData) setAnimData(animCache[option]);
       return;
     }
     let cancelled = false;
-    fetch(data.src)
+    fetch(OPTION_DATA[option].src)
       .then((r) => r.json())
       .then((d) => {
         animCache[option] = d;
         if (!cancelled) setAnimData(d);
       })
       .catch(() => {
-        // Silently fall back to static emoji
+        // Network failure — keep empty placeholder; no layout shift
       });
     return () => {
       cancelled = true;
     };
-  }, [option, reducedMotion]); // eslint-disable-line react-hooks/exhaustive-deps
+  }, [option]); // eslint-disable-line react-hooks/exhaustive-deps
+
+  // Control playback for hover mode via ref.
+  // `animData` is included so the effect re-fires after the Lottie mounts,
+  // picking up any hover state that arrived before the data finished loading.
+  useEffect(() => {
+    if (mode !== 'hover' || !lottieRef.current) return;
+    if (isHovered && !reducedMotion) {
+      lottieRef.current.play();
+    } else {
+      lottieRef.current.stop(); // stop() resets to frame 0
+    }
+  }, [isHovered, reducedMotion, mode, animData]);
 
   const px = size ? `${size}px` : '100%';
   const wrapperStyle = {
@@ -72,22 +90,25 @@ export function AnimatedEmoji({ option, mode, size, className }) {
     flexShrink: 0,
   };
 
-  const shouldAnimate = !reducedMotion && animData !== null;
+  // Fixed-size placeholder while JSON is in flight
+  if (!animData) {
+    return <span className={className} style={wrapperStyle} aria-hidden="true" />;
+  }
+
+  // hover mode: never autoplay; loop=true so play() repeats while hovered
+  // loop mode:  autoplay + loop unless user prefers reduced motion
+  const autoplay = mode === 'loop' && !reducedMotion;
+  const loop = mode === 'hover' ? true : !reducedMotion;
 
   return (
     <span className={className} style={wrapperStyle} aria-hidden="true">
-      {shouldAnimate ? (
-        <Lottie
-          animationData={animData}
-          autoplay
-          loop
-          style={{ width: px, height: px }}
-        />
-      ) : (
-        <span style={{ fontSize: 'inherit', lineHeight: 1, display: 'block', userSelect: 'none' }}>
-          {data.emoji}
-        </span>
-      )}
+      <Lottie
+        lottieRef={lottieRef}
+        animationData={animData}
+        autoplay={autoplay}
+        loop={loop}
+        style={{ width: px, height: px }}
+      />
     </span>
   );
 }
