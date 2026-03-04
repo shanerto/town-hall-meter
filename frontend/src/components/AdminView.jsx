@@ -100,11 +100,10 @@ function ManageEventDropdown({ onExport, exporting, onClearData, onDeleteEvent }
           <button className="dropdown-item" onClick={() => pick(onExport)} disabled={exporting}>
             {exporting ? 'Exporting…' : 'Export CSV'}
           </button>
-          <div className="dropdown-divider" />
           <button className="dropdown-item dropdown-item-danger" onClick={() => pick(onClearData)}>
             Clear Data
           </button>
-          <button className="dropdown-item dropdown-item-danger dropdown-item-danger-bold" onClick={() => pick(onDeleteEvent)}>
+          <button className="dropdown-item dropdown-item-delete" onClick={() => pick(onDeleteEvent)}>
             Delete Event
           </button>
         </div>
