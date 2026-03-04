@@ -10,6 +10,8 @@
   --brand: #6366f1;
   --brand-light: #eef2ff;
   --brand-glow: rgba(99, 102, 241, 0.18);
+  --focus-border: #3b82f6;
+  --focus-glow: rgba(59, 130, 246, 0.14);
   --text-primary: #111827;
   --text-secondary: #6b7280;
   --text-muted: #9ca3af;
@@ -648,10 +650,14 @@ html, body {
 }
 
 .btn-primary {
-  background: var(--brand);
+  background: #111827;
   color: #fff;
 }
-.btn-primary:hover { background: #4f46e5; }
+.btn-primary:hover { background: #374151; }
+.btn-primary:focus-visible {
+  outline: 2px solid #111827;
+  outline-offset: 2px;
+}
 
 .btn-ghost {
   background: #ffffff;
@@ -711,8 +717,8 @@ html, body {
 }
 
 .form-input:focus {
-  border-color: var(--brand);
-  box-shadow: 0 0 0 3px var(--brand-glow);
+  border-color: var(--focus-border);
+  box-shadow: 0 0 0 3px var(--focus-glow);
 }
 
 /* Admin login */
