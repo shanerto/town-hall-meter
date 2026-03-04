@@ -40,8 +40,8 @@ function TrendLine({ data }) {
     >
       <defs>
         <linearGradient id="trendFill" x1="0" y1="0" x2="0" y2="1">
-          <stop offset="0%" stopColor="#6366f1" stopOpacity="0.25" />
-          <stop offset="100%" stopColor="#6366f1" stopOpacity="0" />
+          <stop offset="0%" stopColor="#0094D8" stopOpacity="0.22" />
+          <stop offset="100%" stopColor="#0094D8" stopOpacity="0" />
         </linearGradient>
       </defs>
 
@@ -67,11 +67,11 @@ function TrendLine({ data }) {
       <path d={areaPath} fill="url(#trendFill)" />
 
       {/* Line */}
-      <path d={linePath} fill="none" stroke="#6366f1" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+      <path d={linePath} fill="none" stroke="#0094D8" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
 
       {/* Dots */}
       {pts.map((p, i) => (
-        <circle key={i} cx={p[0]} cy={p[1]} r="3.5" fill="#6366f1" />
+        <circle key={i} cx={p[0]} cy={p[1]} r="3.5" fill="#0094D8" />
       ))}
 
       {/* X-axis labels */}
