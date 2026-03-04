@@ -2,11 +2,14 @@ import { useState, useEffect, useRef } from 'react';
 import Lottie from 'lottie-react';
 
 const OPTION_DATA = {
-  snooze:    { src: '/snooze.json' },
-  fine:      { src: '/fine.json' },
-  goodstuff: { src: '/goodstuff.json' },
-  strong:    { src: '/strong.json' },
-  crushedit: { src: '/crushedit.json' },
+  // restFrame: frame to display when idle (paused still).
+  // snooze uses frame 70 (~50% of 141) so the yawning hand-over-mouth pose
+  // is visible instead of the neutral start frame.
+  snooze:    { src: '/snooze.json',    restFrame: 70 },
+  fine:      { src: '/fine.json',      restFrame: 0 },
+  goodstuff: { src: '/goodstuff.json', restFrame: 0 },
+  strong:    { src: '/strong.json',    restFrame: 0 },
+  crushedit: { src: '/crushedit.json', restFrame: 0 },
 };
 
 // Module-level cache so each JSON file is fetched only once per session
@@ -31,7 +34,7 @@ function usePrefersReducedMotion() {
  * Props:
  *   option     – snooze | fine | goodstuff | strong | crushedit
  *   mode       – "hover" | "loop"
- *   isHovered  – (hover mode) boolean from parent; true = play, false = stop + reset to frame 0
+ *   isHovered  – (hover mode) boolean from parent; true = play from frame 0, false = seek to restFrame
  *   size       – number (px); wrapper and Lottie use identical dimensions — no layout shift
  *   className  – forwarded to outer wrapper span
  *
@@ -73,12 +76,15 @@ export function AnimatedEmoji({ option, mode, isHovered, size, className }) {
   // picking up any hover state that arrived before the data finished loading.
   useEffect(() => {
     if (mode !== 'hover' || !lottieRef.current) return;
+    const restFrame = OPTION_DATA[option].restFrame;
     if (isHovered && !reducedMotion) {
-      lottieRef.current.play();
+      // Always start from the very beginning so the full gesture plays each time
+      lottieRef.current.goToAndPlay(0, true);
     } else {
-      lottieRef.current.stop(); // stop() resets to frame 0
+      // Return to (or stay at) the meaningful resting pose for this emoji
+      lottieRef.current.goToAndStop(restFrame, true);
     }
-  }, [isHovered, reducedMotion, mode, animData]);
+  }, [isHovered, reducedMotion, mode, animData, option]);
 
   const px = size ? `${size}px` : '100%';
   const wrapperStyle = {
