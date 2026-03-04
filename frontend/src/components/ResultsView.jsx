@@ -1,3 +1,5 @@
+import { useState } from 'react';
+
 function formatDate(dateStr) {
   const d = new Date(dateStr + 'T12:00:00');
   return d.toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' });
@@ -107,13 +109,23 @@ function DistributionBar({ row, maxCount }) {
 export function ResultsView({ results }) {
   const { townHall, average, totalResponses, distribution, trend } = results;
   const maxCount = Math.max(...distribution.map((d) => d.count), 1);
+  const [logoError, setLogoError] = useState(false);
 
   return (
     <div className="page">
       <div className="card">
-        <div className="results-header">
-          <div className="results-title">Town Hall Meter</div>
-          <div className="results-date">{formatDate(townHall.date)}</div>
+        <div className="app-header">
+          {logoError ? (
+            <span className="brand-logo-fallback">Town Hall</span>
+          ) : (
+            <img
+              src="/logo.png"
+              alt="Town Hall"
+              className="brand-logo"
+              onError={() => setLogoError(true)}
+            />
+          )}
+          <div className="app-date">{formatDate(townHall.date)}</div>
         </div>
 
         <div className="results-stats">
