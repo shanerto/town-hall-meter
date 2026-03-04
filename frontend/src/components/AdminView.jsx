@@ -135,7 +135,7 @@ function TrendChart({ data }) {
           ))}
 
           {/* Area fill */}
-          {areaPath && <path d={areaPath} fill="rgba(99,102,241,0.08)" />}
+          {areaPath && <path d={areaPath} fill="rgba(0,148,216,0.10)" />}
 
           {/* Line */}
           {linePath && <path d={linePath} fill="none" stroke="#0094D8" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" />}
