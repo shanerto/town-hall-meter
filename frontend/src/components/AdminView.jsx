@@ -268,6 +268,7 @@ function DistributionBars({ distribution }) {
 
 function TownHallResult({ th }) {
   const [ratingFilter, setRatingFilter] = useState(null);
+  const [logoError, setLogoError] = useState(false);
 
   const filteredComments = ratingFilter
     ? th.comments.filter((c) => c.rating === ratingFilter)
@@ -278,9 +279,18 @@ function TownHallResult({ th }) {
   return (
     <div className="th-result">
       {/* Title block */}
-      <div className="results-header">
-        <div className="results-title">{th.title || 'Town Hall'}</div>
-        <div className="results-date">{formatDate(th.date)}</div>
+      <div className="app-header">
+        {logoError ? (
+          <span className="brand-logo-fallback">Town Hall</span>
+        ) : (
+          <img
+            src="/logo.png"
+            alt="Town Hall"
+            className="brand-logo"
+            onError={() => setLogoError(true)}
+          />
+        )}
+        <div className="app-date">{formatDate(th.date)}</div>
       </div>
 
       <div className="section-divider" />
