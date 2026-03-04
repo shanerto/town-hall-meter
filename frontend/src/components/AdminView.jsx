@@ -75,6 +75,44 @@ function ConfirmModal({ title, body, confirmLabel, confirmClassName, onConfirm, 
   );
 }
 
+// ── Manage Event dropdown ──────────────────────────────────────────────────────
+
+function ManageEventDropdown({ onExport, exporting, onClearData, onDeleteEvent }) {
+  const [open, setOpen] = useState(false);
+  const wrapRef = useRef(null);
+
+  useEffect(() => {
+    if (!open) return;
+    function onDoc(e) { if (!wrapRef.current?.contains(e.target)) setOpen(false); }
+    document.addEventListener('mousedown', onDoc);
+    return () => document.removeEventListener('mousedown', onDoc);
+  }, [open]);
+
+  function pick(fn) { setOpen(false); fn(); }
+
+  return (
+    <div className="dropdown-wrap" ref={wrapRef}>
+      <button className="btn btn-ghost btn-sm" onClick={() => setOpen((v) => !v)}>
+        Manage Event ▾
+      </button>
+      {open && (
+        <div className="dropdown-menu">
+          <button className="dropdown-item" onClick={() => pick(onExport)} disabled={exporting}>
+            {exporting ? 'Exporting…' : 'Export CSV'}
+          </button>
+          <div className="dropdown-divider" />
+          <button className="dropdown-item dropdown-item-danger" onClick={() => pick(onClearData)}>
+            Clear Data
+          </button>
+          <button className="dropdown-item dropdown-item-danger dropdown-item-danger-bold" onClick={() => pick(onDeleteEvent)}>
+            Delete Event
+          </button>
+        </div>
+      )}
+    </div>
+  );
+}
+
 // ── Week list ──────────────────────────────────────────────────────────────────
 
 function WeekRow({ week, onClick }) {
@@ -417,23 +455,24 @@ export function AdminView({ onBack }) {
           )}
         </div>
         <div style={{ display: 'flex', gap: '0.5rem', alignItems: 'center' }}>
-          <button className="btn btn-ghost btn-sm" onClick={handleExport} disabled={exporting}>
-            {exporting ? 'Exporting…' : 'Export CSV'}
-          </button>
-          {selectedWeek && currentWeek && (
+          {selectedWeek && currentWeek ? (
+            <ManageEventDropdown
+              onExport={handleExport}
+              exporting={exporting}
+              onClearData={() => setModal('clear')}
+              onDeleteEvent={() => setModal('delete')}
+            />
+          ) : (
             <>
-              <button className="btn btn-danger btn-sm" onClick={() => setModal('clear')}>
-                Clear Data
+              <button className="btn btn-ghost btn-sm" onClick={handleExport} disabled={exporting}>
+                {exporting ? 'Exporting…' : 'Export CSV'}
               </button>
-              <button className="btn btn-danger-solid btn-sm" onClick={() => setModal('delete')}>
-                Delete Event
-              </button>
+              {onBack && (
+                <button className="btn btn-ghost btn-sm" onClick={onBack}>← Back</button>
+              )}
+              <button className="btn btn-ghost btn-sm" onClick={handleLogout}>Sign Out</button>
             </>
           )}
-          {onBack && !selectedWeek && (
-            <button className="btn btn-ghost btn-sm" onClick={onBack}>← Back</button>
-          )}
-          <button className="btn btn-ghost btn-sm" onClick={handleLogout}>Sign Out</button>
         </div>
       </div>
 
