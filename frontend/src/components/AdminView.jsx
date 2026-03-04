@@ -48,6 +48,33 @@ function LoginForm({ onLogin }) {
   );
 }
 
+// ── Confirmation modal ─────────────────────────────────────────────────────────
+
+function ConfirmModal({ title, body, confirmLabel, confirmClassName, onConfirm, onCancel, busy }) {
+  useEffect(() => {
+    const onKey = (e) => { if (e.key === 'Escape' && !busy) onCancel(); };
+    document.addEventListener('keydown', onKey);
+    return () => document.removeEventListener('keydown', onKey);
+  }, [busy, onCancel]);
+
+  return (
+    <div className="modal-overlay" onClick={!busy ? onCancel : undefined}>
+      <div className="modal-card" onClick={(e) => e.stopPropagation()}>
+        <div className="modal-title">{title}</div>
+        <p className="modal-body">{body}</p>
+        <div className="modal-actions">
+          <button className="btn btn-ghost" onClick={onCancel} disabled={busy} autoFocus>
+            Cancel
+          </button>
+          <button className={`btn ${confirmClassName}`} onClick={onConfirm} disabled={busy}>
+            {busy ? '…' : confirmLabel}
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+}
+
 // ── Week list ──────────────────────────────────────────────────────────────────
 
 function WeekRow({ week, onClick }) {
@@ -296,6 +323,8 @@ export function AdminView({ onBack }) {
   const [loading, setLoading] = useState(false);
   const [exporting, setExporting] = useState(false);
   const [selectedWeek, setSelectedWeek] = useState(null);
+  const [modal, setModal] = useState(null);   // 'clear' | 'delete' | null
+  const [modalBusy, setModalBusy] = useState(false);
 
   useEffect(() => {
     if (!token) return;
@@ -315,6 +344,35 @@ export function AdminView({ onBack }) {
     setToken('');
     setWeeks([]);
     setSelectedWeek(null);
+  }
+
+  async function handleClearData() {
+    setModalBusy(true);
+    try {
+      await Promise.all(currentWeek.townHalls.map((th) => adminApi.clearTownHallData(token, th.id)));
+      const updated = await adminApi.getResults(token);
+      setWeeks(updated);
+      setModal(null);
+    } catch {
+      // keep modal open so user can retry or cancel
+    } finally {
+      setModalBusy(false);
+    }
+  }
+
+  async function handleDeleteEvent() {
+    setModalBusy(true);
+    try {
+      await Promise.all(currentWeek.townHalls.map((th) => adminApi.deleteTownHall(token, th.id)));
+      const updated = await adminApi.getResults(token);
+      setWeeks(updated);
+      setSelectedWeek(null);
+      setModal(null);
+    } catch {
+      // keep modal open so user can retry or cancel
+    } finally {
+      setModalBusy(false);
+    }
   }
 
   async function handleExport() {
@@ -362,6 +420,16 @@ export function AdminView({ onBack }) {
           <button className="btn btn-ghost btn-sm" onClick={handleExport} disabled={exporting}>
             {exporting ? 'Exporting…' : 'Export CSV'}
           </button>
+          {selectedWeek && currentWeek && (
+            <>
+              <button className="btn btn-danger btn-sm" onClick={() => setModal('clear')}>
+                Clear Data
+              </button>
+              <button className="btn btn-danger-solid btn-sm" onClick={() => setModal('delete')}>
+                Delete Event
+              </button>
+            </>
+          )}
           {onBack && !selectedWeek && (
             <button className="btn btn-ghost btn-sm" onClick={onBack}>← Back</button>
           )}
@@ -394,6 +462,31 @@ export function AdminView({ onBack }) {
         </>
       )}
       </div>
-    </div>
+
+    {modal === 'clear' && (
+      <ConfirmModal
+        title="Clear all responses?"
+        body="This will permanently remove all emoji votes and comments for this Town Hall. The event will remain, but all responses will be deleted."
+        confirmLabel="Clear Data"
+        confirmClassName="btn-danger"
+        onConfirm={handleClearData}
+        onCancel={() => !modalBusy && setModal(null)}
+        busy={modalBusy}
+      />
+    )}
+    {modal === 'delete' && (
+      <ConfirmModal
+        title="Delete this event?"
+        body="This will permanently delete the Town Hall event and all associated responses. This action cannot be undone."
+        confirmLabel="Delete Event"
+        confirmClassName="btn-danger-solid"
+        onConfirm={handleDeleteEvent}
+        onCancel={() => !modalBusy && setModal(null)}
+        busy={modalBusy}
+      />
+    )}
+  </div>
   );
 }
+
+

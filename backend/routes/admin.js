@@ -105,6 +105,17 @@ router.put('/townhalls/:id', requireAdmin, async (req, res, next) => {
   } catch (err) { next(err); }
 });
 
+// DELETE /api/admin/townhalls/:id/responses — clear all votes, keep the event
+router.delete('/townhalls/:id/responses', requireAdmin, async (req, res, next) => {
+  try {
+    const { id } = req.params;
+    const thResult = await db.execute({ sql: 'SELECT id FROM town_halls WHERE id = ?', args: [id] });
+    if (thResult.rows.length === 0) return res.status(404).json({ error: 'Town hall not found' });
+    await db.execute({ sql: 'DELETE FROM votes WHERE town_hall_id = ?', args: [id] });
+    res.json({ success: true });
+  } catch (err) { next(err); }
+});
+
 // DELETE /api/admin/townhalls/:id
 router.delete('/townhalls/:id', requireAdmin, async (req, res, next) => {
   try {

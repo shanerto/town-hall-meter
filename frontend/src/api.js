@@ -72,6 +72,12 @@ export const adminApi = {
       body: JSON.stringify(data),
     }),
 
+  clearTownHallData: (token, id) =>
+    request(`/admin/townhalls/${id}/responses`, {
+      method: 'DELETE',
+      headers: { Authorization: `Bearer ${token}` },
+    }),
+
   deleteTownHall: (token, id) =>
     request(`/admin/townhalls/${id}`, {
       method: 'DELETE',
