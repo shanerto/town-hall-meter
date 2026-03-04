@@ -138,7 +138,7 @@ function TrendChart({ data }) {
           {areaPath && <path d={areaPath} fill="rgba(99,102,241,0.08)" />}
 
           {/* Line */}
-          {linePath && <path d={linePath} fill="none" stroke="#6366f1" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" />}
+          {linePath && <path d={linePath} fill="none" stroke="#0094D8" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" />}
 
           {/* X-axis labels */}
           {data.map((d, i) => {
@@ -157,7 +157,7 @@ function TrendChart({ data }) {
               cx={xOf(i)}
               cy={yOf(d.avg)}
               r="5"
-              fill="#6366f1"
+              fill="#0094D8"
               stroke="#ffffff"
               strokeWidth="2"
               style={{ cursor: 'default' }}
