@@ -248,6 +248,7 @@ function TrendChart({ data }) {
 // ── Week detail ────────────────────────────────────────────────────────────────
 
 const RATING_TO_OPTION = { 1: 'snooze', 2: 'fine', 3: 'goodstuff', 4: 'strong', 5: 'crushedit' };
+const EMOJIS_LIST = ['😕', '🙂', '😐', '😄', '🚀'];
 
 function DistributionBars({ distribution }) {
   const maxCount = Math.max(...distribution.map((d) => d.count), 1);
