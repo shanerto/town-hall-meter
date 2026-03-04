@@ -1,4 +1,7 @@
 import { useState } from 'react';
+import { AnimatedEmoji } from './AnimatedEmoji.jsx';
+
+const RATING_TO_OPTION = { 1: 'snooze', 2: 'fine', 3: 'goodstuff', 4: 'strong', 5: 'crushedit' };
 
 function formatDate(dateStr) {
   const d = new Date(dateStr + 'T12:00:00');
@@ -96,7 +99,7 @@ function DistributionBar({ row, maxCount }) {
 
   return (
     <div className="dist-row">
-      <span className="dist-emoji">{row.emoji}</span>
+      <AnimatedEmoji option={RATING_TO_OPTION[row.rating]} mode="hover" isHovered={false} size={28} />
       <span className="dist-label">{row.label}</span>
       <div className="dist-bar-track">
         <div className="dist-bar-fill" style={{ width: `${pct}%` }} />

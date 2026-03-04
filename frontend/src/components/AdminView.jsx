@@ -1,5 +1,6 @@
 import { useState, useEffect, useRef } from 'react';
 import { adminApi } from '../api.js';
+import { AnimatedEmoji } from './AnimatedEmoji.jsx';
 
 function formatDate(dateStr) {
   const d = new Date(dateStr + 'T12:00:00');
@@ -246,7 +247,7 @@ function TrendChart({ data }) {
 
 // ── Week detail ────────────────────────────────────────────────────────────────
 
-const EMOJIS_LIST = ['😕', '🙂', '😐', '😄', '🚀'];
+const RATING_TO_OPTION = { 1: 'snooze', 2: 'fine', 3: 'goodstuff', 4: 'strong', 5: 'crushedit' };
 
 function DistributionBars({ distribution }) {
   const maxCount = Math.max(...distribution.map((d) => d.count), 1);
@@ -254,7 +255,7 @@ function DistributionBars({ distribution }) {
     <div className="distribution">
       {distribution.map((d) => (
         <div key={d.rating} className="dist-row">
-          <span className="dist-emoji">{d.emoji}</span>
+          <AnimatedEmoji option={RATING_TO_OPTION[d.rating]} mode="hover" isHovered={false} size={28} />
           <span className="dist-label">{d.label}</span>
           <div className="dist-bar-track">
             <div className="dist-bar-fill" style={{ width: `${(d.count / maxCount) * 100}%` }} />
