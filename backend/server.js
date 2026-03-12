@@ -34,6 +34,45 @@ app.use(
 );
 app.use(express.json());
 
+// Maintenance mode — set MAINTENANCE_MODE=true to show a holding page for all
+// non-API routes (API endpoints remain reachable for health checks / admin use).
+if (process.env.MAINTENANCE_MODE === 'true') {
+  const maintenanceHtml = `<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Rate Town Hall</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: #f9fafb;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      color: #111827;
+    }
+    p {
+      font-size: 1.125rem;
+      font-weight: 500;
+      text-align: center;
+      padding: 0 1.5rem;
+    }
+  </style>
+</head>
+<body>
+  <p>Rate Town Hall is temporarily offline.</p>
+</body>
+</html>`;
+
+  app.use((req, res, next) => {
+    if (req.path.startsWith('/api/')) return next();
+    res.status(503).send(maintenanceHtml);
+  });
+}
+
 // API routes
 app.use('/api/townhalls', townhallsRouter);
 app.use('/api/votes', votesRouter);
