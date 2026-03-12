@@ -36,8 +36,8 @@ app.use(express.json());
 
 // Maintenance mode — set MAINTENANCE_MODE=true to show a holding page for all
 // non-API routes (API endpoints remain reachable for health checks / admin use).
-if (process.env.MAINTENANCE_MODE === 'true') {
-  const maintenanceHtml = `<!DOCTYPE html>
+// The check runs per-request so toggling the env var takes effect without a redeploy.
+const maintenanceHtml = `<!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
@@ -67,11 +67,11 @@ if (process.env.MAINTENANCE_MODE === 'true') {
 </body>
 </html>`;
 
-  app.use((req, res, next) => {
-    if (req.path.startsWith('/api/')) return next();
-    res.status(503).send(maintenanceHtml);
-  });
-}
+app.use((req, res, next) => {
+  if (process.env.MAINTENANCE_MODE !== 'true') return next();
+  if (req.path.startsWith('/api/')) return next();
+  res.status(503).send(maintenanceHtml);
+});
 
 // API routes
 app.use('/api/townhalls', townhallsRouter);
